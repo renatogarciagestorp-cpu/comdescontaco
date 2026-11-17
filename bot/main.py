@@ -65,6 +65,12 @@ def limpar_artes(dias=3):
 def ciclo(cfg):
     from .shopee import ShopeeAPI
 
+    faltando = [k for k in ("SHOPEE_APP_ID", "SHOPEE_SECRET", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
+                if not os.environ.get(k)]
+    if faltando:
+        print(f"Aguardando configuração. Segredos ainda não cadastrados: {', '.join(faltando)}")
+        return
+
     agora = datetime.now(BR)
     faixa = cfg["publicacao"].get("madrugada_sem_som") or []
     sem_som = bool(faixa) and faixa[0] <= agora.hour < faixa[1]
