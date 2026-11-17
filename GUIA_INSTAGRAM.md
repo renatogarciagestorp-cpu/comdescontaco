@@ -84,21 +84,24 @@ Dica: grave o celular espelhado no computador ou use a gravação de tela do cel
 5. Clique em **Enviar para análise**. A resposta costuma chegar em 2 a 10 dias.
 6. Depois da aprovação: **Publicar** o app, mudando a chave do topo de "Desenvolvimento" para **"Ao vivo / Publicado"**.
 
-### Textos prontos (em inglês, que agiliza a análise)
-**instagram_business_basic**
-> Used to read our own Instagram professional account profile (ID and username) so our app can publish posts and reply to comments on our own account. We only access our own account (@comdescontaco).
+### Textos prontos (em inglês, que agiliza a análise): login unificado
+Peça **Acesso avançado** só para estas 4. Não peça `ads_management` nem `ads_read`.
 
-**instagram_business_content_publish**
-> Our app automatically publishes product deal images (price, discount, rating) to the feed of our own Instagram account @comdescontaco. Each post invites followers to comment a keyword to receive the product link.
+**instagram_basic**
+> Used to read the profile (ID and username) and the list of posts of our own Instagram professional account @comdescontaco, so our app can publish posts and find comments on them. We only access our own account.
 
-**instagram_business_manage_comments**
-> We receive comment webhooks on our own posts. When a user comments the keyword "quero" ("I want it" in Portuguese), we reply publicly on that comment saying the link was sent by direct message. We do not store comments.
+**instagram_content_publish**
+> Our app automatically publishes product deal images (price, discount, rating) to the feed of our own Instagram professional account @comdescontaco. Each post invites followers to comment a keyword to receive the product link.
 
-**instagram_business_manage_messages**
-> When a user comments the keyword "quero" on our post, we send that user ONE private reply (Private Replies API) containing the product link they asked for. Messages are only sent in response to the user's own comment request. We never send unsolicited messages and we do not store personal data.
+**instagram_manage_comments**
+> We read the comments on our own posts (via webhooks and by listing recent comments). When a user comments the keyword "quero" ("I want it" in Portuguese), we reply publicly to that comment saying the link was sent by direct message. We do not store comments.
 
-**Instruções para o revisor**
-> This app is used only by our own business account @comdescontaco. To test: 1) Open any recent post on instagram.com/comdescontaco. 2) Comment the word "quero". 3) Within a few seconds you will receive a direct message with the product link, and a public reply on your comment. The screencast shows the full flow, including Instagram Login in our app dashboard.
+**instagram_manage_messages**
+> When a user comments the keyword "quero" on one of our posts, we send that user ONE private reply (Private Replies API) containing the product link they asked for. Messages are sent only in response to the user's own comment. We never send unsolicited messages and we do not store personal data.
+
+**Instruções para o revisor (Reviewer instructions)**
+> This app is used only by our own business account @comdescontaco. Login button: https://renatogarciagestorp-cpu.github.io/comdescontaco/conectar.html (Facebook Login for Business with the Instagram Unified Login configuration).
+> To test the main feature: 1) Open any recent post on https://www.instagram.com/comdescontaco/ 2) Comment the word "quero". 3) Within about one minute you will receive a direct message with the link, and a public reply on your comment ("Te mandei no direct!"). The screencast shows the full flow.
 
 ---
 
