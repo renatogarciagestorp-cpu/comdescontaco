@@ -60,28 +60,14 @@ No portal **affiliate.shopee.com.br**, abra o menu **Open API** e peça o acesso
 5. No GitHub, crie os segredos `INSTAGRAM_USER_ID` e `INSTAGRAM_TOKEN`.
 6. ⚠️ O token vence em cerca de 60 dias: renove antes disso.
 
-### 5. Instagram: robô "comente QUERO" (Cloudflare Workers, grátis)
-O GitHub não consegue "escutar" comentários. Por isso, o robô de comentários roda no Cloudflare Workers, que é gratuito até 100 mil eventos por dia.
-1. Crie uma conta em **cloudflare.com**.
-2. No seu computador, dentro da pasta `instagram-robo`:
-   - edite `wrangler.toml`, trocando `SEU_USUARIO/SEU_REPOSITORIO` pelo seu repositório;
-   - rode:
-     ```bash
-     npx wrangler login
-     npx wrangler secret put INSTAGRAM_TOKEN      # mesmo token do passo 4
-     npx wrangler secret put INSTAGRAM_USER_ID
-     npx wrangler secret put APP_SECRET           # "Chave secreta do app" no painel da Meta
-     npx wrangler secret put VERIFY_TOKEN         # invente uma senha qualquer
-     npx wrangler deploy
-     ```
-   - o comando mostra um endereço como `https://comdescontaco-instagram.SEUNOME.workers.dev`.
-3. No painel do app da Meta, em **Instagram → Webhooks**:
-   - **URL de callback** = esse endereço;
-   - **Token de verificação** = o `VERIFY_TOKEN` que você inventou;
-   - assine o campo **comments**.
-4. ⚠️ **Análise do app pela Meta:** veja o passo a passo completo em `GUIA_INSTAGRAM.md`.
+### 5. Instagram: robô "comente QUERO" (Cloudflare Workers, grátis) ✅ configurado
+- Worker: `comdescontaco-instagram`, com o código de `instagram-robo/index.js` (colado em **Edit code** → **Deploy**).
+- Variáveis: `LINKS_URL`, `TELEGRAM_LINK`, `VERIFY_TOKEN`, `INSTAGRAM_USER_ID` (texto) e `INSTAGRAM_TOKEN`, `APP_SECRET` (secret).
+- **Cron Trigger "Every minute":** o robô verifica os comentários dos últimos 3 minutos a cada minuto. Isso é necessário porque a Meta só envia webhooks de comentários para apps aprovados e publicados.
+- Webhook na Meta (API setup with Unified login → 3): callback `https://comdescontaco-instagram.renatogarcia-gestorp.workers.dev/`, campo **comments** assinado. Passa a valer depois da aprovação.
+- Para acompanhar: Worker → **Observability → Live**. "direct enviado para @..." indica sucesso, e as linhas começando com "erro" trazem o motivo.
 
-As palavras que disparam o robô são "quero", "eu quero", "link", "manda", "eu", 👍, 🔥 e 😍. Elas ficam em `instagram-robo/index.js`.
+As palavras que disparam o robô ("quero", "eu quero", "link", "manda", "eu", 👍, 🔥, 😍) ficam em `instagram-robo/index.js`.
 
 ---
 
