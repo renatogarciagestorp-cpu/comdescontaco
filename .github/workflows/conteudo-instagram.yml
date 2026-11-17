@@ -23,6 +23,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Garantir ffmpeg (para gerar os Reels)
+        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
 
       - name: Gerar a arte do dia
         run: python -m bot.conteudo --gerar

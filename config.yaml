@@ -57,3 +57,9 @@ publicacao:
   madrugada_sem_som: [0, 7]
   campanha_shopee_a_cada_horas: 6  # posta uma campanha/cupom oficial da Shopee
   instagram_posts_por_dia: 8       # só os melhores vão pro Instagram
+
+# ============ Instagram ============
+instagram:
+  conteudo_em_reels: true     # o post de conteúdo diário sai como Reel (vídeo) + Story
+  reels_ofertas_por_dia: 2    # as 2 melhores ofertas do dia viram Reel; as demais saem como imagem
+  # Música: coloque .mp3 livres de direitos em assets/audio/ (ex.: Biblioteca de Áudio do YouTube)

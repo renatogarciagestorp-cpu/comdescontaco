@@ -1,0 +1,6 @@
+Coloque aqui músicas .mp3 LIVRES DE DIREITOS AUTORAIS para os Reels.
+Fontes gratuitas e seguras:
+- Biblioteca de Áudio do YouTube (studio.youtube.com → Biblioteca de áudio): filtre por "Não é necessário atribuir"
+- Pixabay Music (pixabay.com/music): licença livre para uso comercial
+O robô escolhe uma música ao acaso para cada vídeo. Sem arquivos aqui, o vídeo sai sem som.
+NÃO use músicas comerciais (de artistas), pois o Instagram pode silenciar ou remover o vídeo.

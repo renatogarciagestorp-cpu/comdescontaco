@@ -142,8 +142,17 @@ def gerar(cfg):
         nome = f"conteudo_{post['id']}_{hoje:%Y%m%d}"
         salvar(img, ARTS / f"{nome}.jpg")
         salvar(story(cfg, img), ARTS / f"{nome}_story.jpg")
+        video = None
+        if cfg.get("instagram", {}).get("conteudo_em_reels", True):
+            try:
+                from .video import renderizar, roteiro_conteudo
+                dias = (date.fromisoformat(post["data_alvo"]) - hoje).days if post["tipo"] == "contagem" else None
+                renderizar(roteiro_conteudo(cfg, post, dias), ARTS / f"{nome}.mp4")
+                video = f"{nome}.mp4"
+            except Exception as e:
+                print(f"[aviso] vídeo não gerado, vai como imagem: {e}")
         estado["fila"] = {"id": post["id"], "arquivo": f"{nome}.jpg", "story": f"{nome}_story.jpg",
-                          "legenda": post["legenda"].strip()}
+                          "video": video, "legenda": post["legenda"].strip()}
         print(f"[conteudo] gerado: {post['id']}")
         break
     else:
@@ -153,7 +162,7 @@ def gerar(cfg):
 
 
 def publicar():
-    from .publishers import instagram_publicar
+    from .publishers import instagram_publicar, instagram_publicar_reel
 
     if not os.environ.get("INSTAGRAM_TOKEN"):
         sys.exit("Instagram não configurado.")
@@ -164,8 +173,16 @@ def publicar():
         return
     base = f"https://raw.githubusercontent.com/{os.environ['GITHUB_REPOSITORY']}/" \
            f"{os.environ.get('GITHUB_REF_NAME', 'main')}/arts/"
-    media = instagram_publicar(base + item["arquivo"], item["legenda"])
-    print(f"[conteudo] feed publicado: {item['id']} → {media}")
+    media = None
+    if item.get("video") and (ARTS / item["video"]).exists():
+        try:
+            media = instagram_publicar_reel(ARTS / item["video"], item["legenda"])
+            print(f"[conteudo] reel publicado: {item['id']} → {media}")
+        except Exception as e:
+            print(f"[aviso] reel falhou, publicando como imagem: {e}")
+    if not media:
+        media = instagram_publicar(base + item["arquivo"], item["legenda"])
+        print(f"[conteudo] feed publicado: {item['id']} → {media}")
     try:
         instagram_publicar(base + item["story"], story=True)
         print("[conteudo] story publicado")

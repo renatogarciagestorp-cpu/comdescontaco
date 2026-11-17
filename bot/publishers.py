@@ -124,3 +124,35 @@ def instagram_publicar(url_imagem_publica, legenda="", story=False) -> str:
     if not r.ok:
         raise RuntimeError(f"Instagram publish: {r.text}")
     return r.json()["id"]
+
+
+def instagram_publicar_reel(caminho_video, legenda) -> str:
+    """Publica um Reel (aparece também no feed) enviando o arquivo direto para a Meta
+    (upload resumable): não precisa de link público para o vídeo."""
+    uid, token = os.environ["INSTAGRAM_USER_ID"], os.environ["INSTAGRAM_TOKEN"]
+    r = requests.post(f"{IG}/{uid}/media", data={
+        "media_type": "REELS", "upload_type": "resumable", "caption": legenda,
+        "share_to_feed": "true", "access_token": token}, timeout=60)
+    if not r.ok:
+        raise RuntimeError(f"Instagram reel (container): {r.text}")
+    criacao = r.json()["id"]
+    dados = open(caminho_video, "rb").read()
+    versao = IG.rsplit("/", 1)[-1]
+    up = requests.post(f"https://rupload.facebook.com/ig-api-upload/{versao}/{criacao}", data=dados,
+                       headers={"Authorization": f"OAuth {token}", "offset": "0",
+                                "file_size": str(len(dados))}, timeout=300)
+    if not up.ok:
+        raise RuntimeError(f"Instagram reel (upload): {up.text}")
+    for _ in range(40):  # vídeo demora mais para processar (até ~3 min)
+        st = requests.get(f"{IG}/{criacao}", params={
+            "fields": "status_code,status", "access_token": token}, timeout=30).json()
+        if st.get("status_code") == "FINISHED":
+            break
+        if st.get("status_code") == "ERROR":
+            raise RuntimeError(f"Instagram reel (processamento): {st.get('status')}")
+        time.sleep(5)
+    r = requests.post(f"{IG}/{uid}/media_publish", data={
+        "creation_id": criacao, "access_token": token}, timeout=60)
+    if not r.ok:
+        raise RuntimeError(f"Instagram reel (publicar): {r.text}")
+    return r.json()["id"]

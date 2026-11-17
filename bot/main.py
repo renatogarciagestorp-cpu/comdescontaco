@@ -57,7 +57,7 @@ def escolher(produtos, cfg, state):
 
 
 def limpar_artes(dias=3):
-    for a in ARTS.glob("*.jpg"):
+    for a in [*ARTS.glob("*.jpg"), *ARTS.glob("*.mp4")]:
         if a.stat().st_mtime < time.time() - dias * 86400:
             a.unlink()
 
@@ -132,7 +132,15 @@ def ciclo(cfg):
             # os melhores do dia também vão para o Instagram (arte com "comente QUERO")
             if state["instagram"]["qtd"] < pc["instagram_posts_por_dia"] and p.desconto >= 40:
                 arq = salvar(arte_produto(cfg, p, "instagram"), ARTS / f"{p.id}_ig.jpg")
+                video = None
+                if state["instagram"]["qtd"] < cfg.get("instagram", {}).get("reels_ofertas_por_dia", 2):
+                    try:
+                        from .video import renderizar, roteiro_oferta
+                        video = renderizar(roteiro_oferta(cfg, p), ARTS / f"{p.id}_reel.mp4").name
+                    except Exception as e:
+                        print(f"[aviso] reel da oferta não gerado: {e}")
                 fila_ig.append({
+                    "video": video,
                     "arquivo": arq.name,
                     "legenda": pub.legenda_instagram(cfg, p),
                     "link": api.link_rastreado(p.link_original, "instagram") or p.link,
@@ -165,7 +173,13 @@ def publicar_instagram():
     for item in fila:
         url = f"https://raw.githubusercontent.com/{repo}/{branch}/arts/{item['arquivo']}"
         try:
-            media_id = pub.instagram_publicar(url, item["legenda"])
+            media_id = None
+            if item.get("video") and (ARTS / item["video"]).exists():
+                try:
+                    media_id = pub.instagram_publicar_reel(ARTS / item["video"], item["legenda"])
+                except Exception as e:
+                    print(f"[aviso] reel falhou, publicando imagem: {e}")
+            media_id = media_id or pub.instagram_publicar(url, item["legenda"])
             links[media_id] = {"link": item["link"], "nome": item["nome"],
                                "preco": item["preco"], "ts": int(time.time())}
             print(f"[instagram] {item['arquivo']} → {media_id}")
