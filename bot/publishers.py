@@ -38,7 +38,9 @@ def legenda_telegram(cfg, p, link) -> str:
         f"❌ De <s>{brl(p.preco_antigo)}</s>" if p.preco_antigo > p.preco else None,
         f"✅ Por <b>{brl(p.preco)}</b>  🔻{p.desconto}% OFF",
         f"💰 Você economiza <b>{brl(economia)}</b>" if economia >= 1 else None,
-        f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1),
+        (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else
+         (f"📦 {mil(p.vendas)} vendidos" if p.vendas else None)),
+        f"🏬 {p.plataforma}",
         "",
         f"👉 <a href=\"{html.escape(link)}\"><b>COMPRAR AGORA</b></a>",
         "",
@@ -65,12 +67,12 @@ def legenda_instagram(cfg, p) -> str:
         "",
         f"🔥 {p.nome}",
         f"De {brl(p.preco_antigo)} por {brl(p.preco)} (-{p.desconto}%)",
-        f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1),
+        (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else f"🏬 {p.plataforma}"),
         "",
         f"📲 Ofertas relâmpago o dia todo no nosso Telegram: {ch['arroba_telegram']} (link na bio)",
         "",
         f"#publi {ch['aviso_afiliado']}",
-        "#promoção #achadinhos #shopee #ofertas #desconto #cupom #comdescontaco",
+        "#promoção #achadinhos #" + p.plataforma.lower().replace(" ", "") + " #ofertas #desconto #cupom #comdescontaco",
     ])
 
 

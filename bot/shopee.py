@@ -53,6 +53,7 @@ class Produto:
     nota: float
     comissao: float
     loja: str
+    plataforma: str = "Shopee"
 
 
 @dataclass

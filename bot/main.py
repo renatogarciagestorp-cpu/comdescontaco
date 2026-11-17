@@ -62,11 +62,63 @@ def limpar_artes(dias=3):
             a.unlink()
 
 
-def ciclo(cfg):
+def publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som, forcar_instagram=False):
+    """Publica uma oferta (Shopee ou Mercado Livre) no Telegram e, se for das melhores, prepara o Instagram."""
+    pc = cfg["publicacao"]
+    p = replace(p, nome=pub.limpar_titulo(p.nome))
+    caminho = salvar(arte_produto(cfg, p, "telegram"), ARTS / f"{p.id}.jpg")
+    pub.telegram_enviar_foto(caminho, pub.legenda_telegram(cfg, p, link_tg), "🛒 COMPRAR AGORA", link_tg, sem_som)
+    state["produtos"][p.id] = time.time()
+    print(f"[postado] {p.plataforma} -{p.desconto}% {p.nome}")
+    if state["instagram"]["qtd"] >= pc["instagram_posts_por_dia"] or not (forcar_instagram or p.desconto >= 40):
+        return
+    arq = salvar(arte_produto(cfg, p, "instagram"), ARTS / f"{p.id}_ig.jpg")
+    video = None
+    if state["instagram"]["qtd"] < cfg.get("instagram", {}).get("reels_ofertas_por_dia", 2):
+        try:
+            from .video import renderizar, roteiro_oferta
+            video = renderizar(roteiro_oferta(cfg, p), ARTS / f"{p.id}_reel.mp4").name
+        except Exception as e:
+            print(f"[aviso] reel da oferta não gerado: {e}")
+    story_arq = None
+    if cfg.get("instagram", {}).get("stories_ofertas", True):
+        from PIL import Image as _Img
+        from .conteudo import story as _story
+        titulo = "OFERTA RELÂMPAGO" if p.desconto >= 50 else "ACHADO DO DIA"
+        st = _story(cfg, _Img.open(arq), titulo, 'COMENTE "QUERO" NO POST')
+        story_arq = salvar(st, ARTS / f"{p.id}_story.jpg").name
+    fila_ig.append({"story": story_arq, "video": video, "arquivo": arq.name,
+                    "legenda": pub.legenda_instagram(cfg, p), "link": link_ig,
+                    "nome": p.nome, "preco": pub.brl(p.preco)})
+    state["instagram"]["qtd"] += 1
+
+
+def ciclo_mercadolivre(cfg, state, fila_ig, sem_som):
+    """Publica os links do Mercado Livre que você mandou para o bot no Telegram."""
+    from . import mercadolivre as ml
+    try:
+        pedidos = ml.novos_pedidos(state)
+    except Exception as e:
+        print(f"[erro ml] leitura do Telegram: {e}")
+        return
+    for chat_id, link, texto, foto in pedidos:
+        try:
+            p = ml.montar_produto(link, texto, foto)
+            publicar_oferta(cfg, p, link, link, state, fila_ig, sem_som, forcar_instagram=True)
+            ml.responder(chat_id, f"✅ Publicado: {p.nome[:60]} por {pub.brl(p.preco)}"
+                                  + (f" (-{p.desconto}%)" if p.desconto else ""))
+            time.sleep(15)
+        except Exception as e:
+            print(f"[erro ml] {link}: {e}")
+            ml.responder(chat_id, f"❌ Não publiquei {link}\nMotivo: {e}.\n"
+                                  "Tente de novo com os preços (ex.: 'de 199,90 por 99,90') ou mande uma FOTO "
+                                  "do produto com o link e os preços na legenda.")
+
+
+def ciclo(cfg, so_mercadolivre=False):
     from .shopee import ShopeeAPI
 
-    faltando = [k for k in ("SHOPEE_APP_ID", "SHOPEE_SECRET", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")
-                if not os.environ.get(k)]
+    faltando = [k for k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID") if not os.environ.get(k)]
     if faltando:
         print(f"Aguardando configuração. Segredos ainda não cadastrados: {', '.join(faltando)}")
         return
@@ -75,91 +127,65 @@ def ciclo(cfg):
     faixa = cfg["publicacao"].get("madrugada_sem_som") or []
     sem_som = bool(faixa) and faixa[0] <= agora.hour < faixa[1]
 
-    api, state = ShopeeAPI(), carregar(STATE, {})
+    state = carregar(STATE, {})
     for k, v in {"produtos": {}, "campanhas": {}, "ultima_campanha": 0,
                  "instagram": {"dia": "", "qtd": 0}}.items():
         state.setdefault(k, v)
     pc = cfg["publicacao"]
-
-    # 1) Campanha/cupom oficial da Shopee de tempos em tempos
-    if time.time() - state["ultima_campanha"] > pc["campanha_shopee_a_cada_horas"] * 3600:
-        try:
-            for c in api.buscar_campanhas():
-                if c.id in state["campanhas"]:
-                    continue
-                link = api.link_rastreado(c.link, "telegram") or c.link
-                horas = (c.fim - time.time()) / 3600 if c.fim else None
-                caminho = salvar(arte_campanha(cfg, c.nome, c.imagem, horas),
-                                 ARTS / f"camp_{int(time.time())}.jpg")
-                pub.telegram_enviar_foto(caminho, pub.legenda_campanha(cfg, c, link),
-                                         "🎟️ PEGAR MEUS CUPONS", link, sem_som)
-                state["campanhas"][c.id] = time.time()
-                print(f"[campanha] {c.nome}")
-                break
-        except Exception as e:
-            print(f"[erro campanha] {e}")
-        state["ultima_campanha"] = time.time()
-
-    # 2) Produtos em promoção
-    palavras = random.sample(cfg["busca"]["palavras_chave"], cfg["busca"]["palavras_por_execucao"])
-    produtos = []
-    for kw in palavras:
-        try:
-            produtos += api.buscar_produtos(kw, cfg["busca"]["resultados_por_palavra"])
-        except Exception as e:
-            print(f"[erro busca '{kw}'] {e}")
-    candidatos = escolher(produtos, cfg, state)
-    print(f"{len(produtos)} produtos encontrados, {len(candidatos)} passaram nos filtros.")
-
     hoje = agora.strftime("%Y-%m-%d")
     if state["instagram"]["dia"] != hoje:
         state["instagram"] = {"dia": hoje, "qtd": 0}
     fila_ig = carregar(FILA_IG, [])
 
-    postados = 0
-    for p in candidatos:
-        if postados >= pc["posts_por_execucao"]:
-            break
-        try:
-            p = replace(p, nome=pub.limpar_titulo(p.nome))
-            caminho = salvar(arte_produto(cfg, p, "telegram"), ARTS / f"{p.id}.jpg")
-            link = api.link_rastreado(p.link_original, "telegram") or p.link
-            pub.telegram_enviar_foto(caminho, pub.legenda_telegram(cfg, p, link),
-                                     "🛒 COMPRAR AGORA", link, sem_som)
-            state["produtos"][p.id] = time.time()
-            postados += 1
-            print(f"[postado] -{p.desconto}% {p.nome}")
-            # os melhores do dia também vão para o Instagram (arte com "comente QUERO")
-            if state["instagram"]["qtd"] < pc["instagram_posts_por_dia"] and p.desconto >= 40:
-                arq = salvar(arte_produto(cfg, p, "instagram"), ARTS / f"{p.id}_ig.jpg")
-                video = None
-                if state["instagram"]["qtd"] < cfg.get("instagram", {}).get("reels_ofertas_por_dia", 2):
-                    try:
-                        from .video import renderizar, roteiro_oferta
-                        video = renderizar(roteiro_oferta(cfg, p), ARTS / f"{p.id}_reel.mp4").name
-                    except Exception as e:
-                        print(f"[aviso] reel da oferta não gerado: {e}")
-                story_arq = None
-                if cfg.get("instagram", {}).get("stories_ofertas", True):
-                    from PIL import Image as _Img
-                    from .conteudo import story as _story
-                    titulo = "⚡ OFERTA RELÂMPAGO" if p.desconto >= 50 else "ACHADO DO DIA"
-                    st = _story(cfg, _Img.open(arq), titulo.replace("⚡ ", ""), 'COMENTE "QUERO" NO POST')
-                    story_arq = salvar(st, ARTS / f"{p.id}_story.jpg").name
-                fila_ig.append({
-                    "story": story_arq,
-                    "video": video,
-                    "arquivo": arq.name,
-                    "legenda": pub.legenda_instagram(cfg, p),
-                    "link": api.link_rastreado(p.link_original, "instagram") or p.link,
-                    "nome": p.nome,
-                    "preco": pub.brl(p.preco),
-                })
-                state["instagram"]["qtd"] += 1
-            if postados < pc["posts_por_execucao"]:
-                time.sleep(pc["intervalo_segundos_entre_posts"])
-        except Exception as e:
-            print(f"[erro post {p.id}] {e}")
+    # 1) Mercado Livre: links enviados por você ao bot
+    ciclo_mercadolivre(cfg, state, fila_ig, sem_som)
+
+    # 2) Shopee: automático (quando as chaves estiverem cadastradas)
+    if so_mercadolivre or not (os.environ.get("SHOPEE_APP_ID") and os.environ.get("SHOPEE_SECRET")):
+        if not so_mercadolivre:
+            print("Shopee ainda não configurada (SHOPEE_APP_ID / SHOPEE_SECRET); pulando.")
+    else:
+        api = ShopeeAPI()
+        if time.time() - state["ultima_campanha"] > pc["campanha_shopee_a_cada_horas"] * 3600:
+            try:
+                for c in api.buscar_campanhas():
+                    if c.id in state["campanhas"]:
+                        continue
+                    link = api.link_rastreado(c.link, "telegram") or c.link
+                    horas = (c.fim - time.time()) / 3600 if c.fim else None
+                    caminho = salvar(arte_campanha(cfg, c.nome, c.imagem, horas),
+                                     ARTS / f"camp_{int(time.time())}.jpg")
+                    pub.telegram_enviar_foto(caminho, pub.legenda_campanha(cfg, c, link),
+                                             "🎟️ PEGAR MEUS CUPONS", link, sem_som)
+                    state["campanhas"][c.id] = time.time()
+                    print(f"[campanha] {c.nome}")
+                    break
+            except Exception as e:
+                print(f"[erro campanha] {e}")
+            state["ultima_campanha"] = time.time()
+
+        palavras = random.sample(cfg["busca"]["palavras_chave"], cfg["busca"]["palavras_por_execucao"])
+        produtos = []
+        for kw in palavras:
+            try:
+                produtos += api.buscar_produtos(kw, cfg["busca"]["resultados_por_palavra"])
+            except Exception as e:
+                print(f"[erro busca '{kw}'] {e}")
+        candidatos = escolher(produtos, cfg, state)
+        print(f"{len(produtos)} produtos encontrados, {len(candidatos)} passaram nos filtros.")
+        postados = 0
+        for p in candidatos:
+            if postados >= pc["posts_por_execucao"]:
+                break
+            try:
+                link_tg = api.link_rastreado(p.link_original, "telegram") or p.link
+                link_ig = api.link_rastreado(p.link_original, "instagram") or p.link
+                publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som)
+                postados += 1
+                if postados < pc["posts_por_execucao"]:
+                    time.sleep(pc["intervalo_segundos_entre_posts"])
+            except Exception as e:
+                print(f"[erro post {p.id}] {e}")
 
     corte = time.time() - 30 * 86400  # esquece itens antigos para o arquivo não crescer
     state["produtos"] = {k: v for k, v in state["produtos"].items() if v > corte}
@@ -242,6 +268,8 @@ def main():
         demo(cfg)
     elif "--instagram" in sys.argv:
         publicar_instagram()
+    elif "--ml" in sys.argv:
+        ciclo(cfg, so_mercadolivre=True)
     else:
         ciclo(cfg)
 

@@ -81,3 +81,14 @@ python -m bot.main --demo     # cria exemplos em preview/
 - **Avise que são links de afiliado** (CONAR). Coloque na descrição do canal: *"Links de afiliado: podemos ganhar comissão, sem custo extra pra você."* No Instagram, o bot já coloca `#publi`.
 - Não use o nome nem o logo da Shopee como marca.
 - O GitHub desativa agendamentos de repositórios parados há 60 dias. Os commits do bot evitam isso, mas, se o agendamento parar, é só reativar em **Actions**.
+
+---
+
+## Mercado Livre (semiautomático)
+O Mercado Livre não tem API oficial de link de afiliado, e a criação de apps novos está fechada. Por isso:
+1. No **painel de afiliados do Mercado Livre**, escolha os produtos (dê preferência a "Ganhos extras") e gere os links no **Gerador de links**.
+2. Mande os links para o **bot do comdescontaco no Telegram** (conversa privada), um por linha. Opcional: `de 199,90 por 99,90` depois do link.
+3. Em até 10 minutos, o robô lê foto, nome e preço da página, publica no canal, no Instagram (Reel, imagem e Story) e responde "✅ Publicado".
+   Se não conseguir ler a página, ele pede uma **foto** do produto com o link e os preços na legenda.
+
+**Configuração (uma vez):** mande `/start` para o bot. Ele responde com o seu ID; cadastre esse número no GitHub como o segredo `TELEGRAM_ADMIN_ID`. Só esse ID pode mandar links.
