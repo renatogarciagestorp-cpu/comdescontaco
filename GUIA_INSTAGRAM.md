@@ -14,7 +14,7 @@ Tempo total estimado: 1 a 3 semanas, a maior parte esperando a Meta responder.
 
 ## Etapa 2: publicar as páginas obrigatórias (10 min)
 A Meta exige uma **Política de Privacidade** e uma página de **Exclusão de dados**. Elas já estão prontas na pasta `docs/`.
-1. Nos arquivos `docs/privacidade.html` e `docs/exclusao-dados.html`, troque `SEU-EMAIL-DE-CONTATO` por um e-mail de contato. Sugestão: crie um e-mail só para o canal.
+1. O e-mail de contato das páginas já está preenchido.
 2. No GitHub: **Settings → Pages → Branch: main / pasta /docs → Save**.
 3. Em 1 a 2 minutos as páginas ficam no ar:
    - `https://SEU_USUARIO.github.io/SEU_REPOSITORIO/privacidade.html`
