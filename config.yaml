@@ -1,0 +1,55 @@
+# ============ Identidade do canal ============
+canal:
+  nome: "Garimpo Relâmpago"
+  arroba_telegram: "@garimporelampago"      # troque se o @ já estiver em uso
+  link_telegram: "https://t.me/garimporelampago"
+  arroba_instagram: "@garimporelampago"
+  aviso_afiliado: "Links de afiliado: podemos ganhar comissão, sem custo extra pra você."
+
+cores:
+  fundo: "#2D0A5B"      # roxo profundo
+  fundo2: "#4B1497"     # roxo vibrante (degradê)
+  destaque: "#FFD60A"   # amarelo elétrico
+  alerta: "#FF2E88"     # rosa choque (selo de %)
+  texto: "#FFFFFF"
+
+# ============ Busca de ofertas (Shopee) ============
+busca:
+  # Nicho geral: a cada execução o bot sorteia algumas palavras desta lista.
+  palavras_chave:
+    - fone bluetooth
+    - smartwatch
+    - air fryer
+    - organizador
+    - tênis
+    - perfume
+    - carregador turbo
+    - mochila
+    - luminária led
+    - panela
+    - garrafa térmica
+    - kit maquiagem
+    - brinquedo
+    - ferramentas
+    - capa celular
+    - camiseta
+    - aspirador
+    - caixa de som
+    - cozinha utilidades
+    - pet
+  palavras_por_execucao: 4
+  resultados_por_palavra: 30
+
+filtros:
+  desconto_minimo: 30        # %
+  nota_minima: 4.6           # estrelas
+  vendas_minimas: 100
+  preco_maximo: 800          # R$ (nicho geral converte melhor em itens baratos)
+  repetir_produto_apos_dias: 7
+
+publicacao:
+  posts_por_execucao: 2          # o GitHub roda a cada ~30 min → ~4 posts/hora
+  intervalo_segundos_entre_posts: 60
+  horario_silencioso: [0, 7]     # não posta entre 0h e 7h (horário de Brasília)
+  campanha_shopee_a_cada_horas: 6  # posta uma campanha/cupom oficial da Shopee
+  instagram_posts_por_dia: 6       # só os melhores vão pro Instagram
