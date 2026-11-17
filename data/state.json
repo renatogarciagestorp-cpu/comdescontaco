@@ -1,1 +1,10 @@
-{"produtos": {}, "campanhas": {}, "ultima_campanha": 0, "instagram": {"dia": "", "qtd": 0}}
+{
+ "produtos": {},
+ "campanhas": {},
+ "ultima_campanha": 0,
+ "instagram": {
+  "dia": "2026-11-17",
+  "qtd": 0
+ },
+ "telegram_offset": 778165335
+}
