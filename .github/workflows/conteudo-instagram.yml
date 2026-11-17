@@ -1,0 +1,45 @@
+name: Conteúdo Instagram
+
+on:
+  schedule:
+    - cron: "7 22 * * *"   # todo dia às 19h07 (Brasília), horário de pico no Instagram
+  workflow_dispatch:        # botão "Run workflow" para publicar na hora
+
+concurrency:
+  group: comdescontaco-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Gerar a arte do dia
+        run: python -m bot.conteudo --gerar
+
+      - name: Salvar a arte no repositório (para ter link público)
+        run: |
+          git config user.name "comdescontaco-bot"
+          git config user.email "comdescontaco-bot@users.noreply.github.com"
+          git add -A data arts
+          git diff --cached --quiet || git commit -m "conteudo: arte do dia [skip ci]"
+          git pull --rebase && git push
+
+      - name: Publicar no feed e nos Stories
+        env:
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+        run: |
+          python -m bot.conteudo --publicar
+          git add -A data
+          git diff --cached --quiet || (git commit -m "conteudo: publicado [skip ci]" && git pull --rebase && git push)

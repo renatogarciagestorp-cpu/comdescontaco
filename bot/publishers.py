@@ -100,11 +100,16 @@ def telegram_enviar_foto(caminho_img, legenda, botao_texto, botao_link, sem_som=
 IG = "https://graph.facebook.com/v27.0"
 
 
-def instagram_publicar(url_imagem_publica, legenda) -> str:
-    """Publica no feed e devolve o ID da publicação. A imagem precisa de link público."""
+def instagram_publicar(url_imagem_publica, legenda="", story=False) -> str:
+    """Publica no feed (ou nos Stories, se story=True) e devolve o ID da publicação.
+    A imagem precisa de link público."""
     uid, token = os.environ["INSTAGRAM_USER_ID"], os.environ["INSTAGRAM_TOKEN"]
-    r = requests.post(f"{IG}/{uid}/media", data={
-        "image_url": url_imagem_publica, "caption": legenda, "access_token": token}, timeout=60)
+    dados = {"image_url": url_imagem_publica, "access_token": token}
+    if story:
+        dados["media_type"] = "STORIES"
+    else:
+        dados["caption"] = legenda
+    r = requests.post(f"{IG}/{uid}/media", data=dados, timeout=60)
     if not r.ok:
         raise RuntimeError(f"Instagram media: {r.text}")
     criacao = r.json()["id"]

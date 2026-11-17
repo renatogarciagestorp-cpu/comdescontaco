@@ -1,0 +1,277 @@
+# Banco de conteúdo do Instagram (posts que NÃO são ofertas).
+# O robô publica 1 por dia, na ordem, no feed + Stories (workflow "Conteúdo Instagram").
+# "publicar_em" (opcional): o post sai exatamente nesse dia, furando a fila.
+# Tipos: "lista" (título + itens), "texto" (título + parágrafo), "contagem" (dias até uma data).
+# Em "titulo", as linhas listadas em "destaque" (começando em 0) saem em amarelo.
+# Objetivo de cada post (pilar): ALCANCE = compartilhamento/salvamento, ENGAJAMENTO = comentário,
+# CONFIANÇA = autoridade, CONVERSÃO = levar ao Telegram.
+
+posts:
+  - id: bf-sinais-desconto-falso
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: BLACK FRIDAY
+    titulo: ["5 SINAIS DE", "DESCONTO FALSO"]
+    destaque: [1]
+    itens:
+      - ["O preço subiu antes", "Desconfie do 'de' que aumentou semanas atrás"]
+      - ["Frete caro escondido", "Some o frete antes de comemorar o desconto"]
+      - ["Loja sem avaliações", "Prefira vendedores com histórico e notas altas"]
+      - ["Urgência exagerada", "'Só hoje' todo dia não é oferta, é pressão"]
+      - ["Link estranho", "Compre só pelo site ou app oficial da loja"]
+    cta: SALVE E COMPARTILHE
+    legenda: |
+      🚨 Black Friday chegando e com ela os "descontos" que não são descontos.
+
+      Antes de comprar, confira estes 5 sinais 👆
+
+      Aqui no @comdescontaco a gente só divulga oferta que passa no nosso filtro: desconto real, produto bem avaliado e vendedor com histórico.
+
+      📌 Salve este post pra consultar na Black Friday
+      📲 Ofertas verificadas todos os dias no nosso Telegram (link na bio)
+
+      #blackfriday #blackfriday2026 #promoção #desconto #achadinhos #dicasdecompras #economia
+
+  - id: contagem-bf-1
+    publicar_em: "2026-11-19"
+    pilar: CONVERSÃO
+    tipo: contagem
+    etiqueta: CONTAGEM REGRESSIVA
+    data_alvo: "2026-11-27"
+    evento: BLACK FRIDAY
+    texto: "As melhores ofertas vão sair primeiro no nosso Telegram. Entre agora e ative as notificações."
+    cta: LINK NA BIO
+    legenda: |
+      ⏳ A contagem regressiva começou!
+
+      Na Black Friday as melhores ofertas acabam em minutos. Quem recebe primeiro, compra mais barato.
+
+      📲 Entre no nosso canal do Telegram (link na bio) e ative as notificações 🔔
+
+      #blackfriday #blackfriday2026 #promoção #ofertas #achadinhos #comdescontaco
+
+  - id: comente-o-que-quer
+    pilar: ENGAJAMENTO
+    tipo: texto
+    etiqueta: SUA VEZ
+    titulo: ["O QUE VOCÊ", "QUER ACHAR", "EM PROMOÇÃO?"]
+    destaque: [2]
+    texto: "Comente aqui embaixo o produto que você está esperando baixar de preço. A gente garimpa e avisa quando aparecer uma oferta boa."
+    cta: COMENTE AQUI
+    legenda: |
+      💬 Queremos saber: o que você está esperando entrar em promoção?
+
+      Air fryer? Fone? Tênis? Comenta aqui 👇 e a gente fica de olho pra você.
+
+      As ofertas saem primeiro no nosso Telegram (link na bio) ⚡
+
+      #promoção #achadinhos #ofertas #blackfriday #comprasonline #comdescontaco
+
+  - id: cupom-passo-a-passo
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: TUTORIAL
+    titulo: ["COMO USAR", "CUPOM EM 4 PASSOS"]
+    destaque: [1]
+    itens:
+      - ["Pegue o cupom antes", "Resgate na página da loja ou da campanha"]
+      - ["Confira o valor mínimo", "Muitos cupons só valem acima de um valor"]
+      - ["Aplique no checkout", "Selecione o cupom antes de pagar"]
+      - ["Combine com frete grátis", "Cupom da loja + cupom de frete juntos"]
+    cta: SALVE PRA NÃO ESQUECER
+    legenda: |
+      🎟️ Tem gente que perde desconto por não saber usar cupom direito.
+
+      Salve este passo a passo 📌 e mande pra quem sempre paga frete 😅
+
+      Cupons novos todos os dias no nosso Telegram (link na bio) ⚡
+
+      #cupom #cupomdedesconto #fretegratis #promoção #dicas #economia #comdescontaco
+
+  - id: marque-amigo
+    pilar: ALCANCE
+    tipo: texto
+    etiqueta: MARQUE ALGUÉM
+    titulo: ["MARQUE AQUELE", "AMIGO QUE", "SEMPRE PAGA CARO"]
+    destaque: [2]
+    texto: "Todo grupo tem aquela pessoa que compra sem pesquisar. Faça um favor pra ela: marque aqui e mostre onde estão as ofertas de verdade."
+    cta: MARQUE NOS COMENTÁRIOS
+    legenda: |
+      😂 Todo mundo conhece um...
+
+      Marca aqui 👇 aquele amigo que nunca espera a promoção!
+
+      📲 Ofertas verificadas todos os dias no Telegram (link na bio)
+
+      #humor #promoção #achadinhos #economia #blackfriday #comdescontaco
+
+  - id: golpes
+    pilar: CONFIANÇA
+    tipo: lista
+    etiqueta: SEGURANÇA
+    titulo: ["NÃO CAIA EM", "GOLPE NA", "BLACK FRIDAY"]
+    destaque: [2]
+    itens:
+      - ["Confira o endereço do site", "Golpistas copiam lojas com nomes parecidos"]
+      - ["PIX só pela loja oficial", "Nunca pague PIX para pessoa física"]
+      - ["Preço bom demais? Desconfie", "Muito abaixo do mercado costuma ser golpe"]
+      - ["Use o app oficial", "Evite links recebidos por SMS ou desconhecidos"]
+    cta: COMPARTILHE COM A FAMÍLIA
+    legenda: |
+      ⚠️ Na Black Friday os golpes aumentam muito.
+
+      Compartilhe com sua família, principalmente com quem compra pouco pela internet 🙏
+
+      Aqui todo link leva para a loja oficial ✅
+
+      #golpe #segurançadigital #blackfriday #dicas #comprasonline #comdescontaco
+
+  - id: contagem-bf-2
+    publicar_em: "2026-11-24"
+    pilar: CONVERSÃO
+    tipo: contagem
+    etiqueta: CONTAGEM REGRESSIVA
+    data_alvo: "2026-11-27"
+    evento: BLACK FRIDAY
+    texto: "Monte sua lista de desejos agora e acompanhe os preços. Quando o desconto for real, a gente avisa no Telegram."
+    cta: LINK NA BIO
+    legenda: |
+      ⏳ Falta pouco!
+
+      Dica de ouro: faça sua lista de desejos HOJE e acompanhe os preços. Assim você percebe na hora se o desconto é de verdade.
+
+      📲 Nossas ofertas verificadas saem primeiro no Telegram (link na bio)
+
+      #blackfriday #blackfriday2026 #contagemregressiva #promoção #comdescontaco
+
+  - id: checklist-bf
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: CHECKLIST
+    titulo: ["PREPARE-SE PARA", "A BLACK FRIDAY"]
+    destaque: [1]
+    itens:
+      - ["Faça sua lista de desejos", "Saiba o que quer antes de abrir o app"]
+      - ["Anote os preços de hoje", "Pra comparar com o 'desconto' depois"]
+      - ["Cadastre endereço e cartão", "Oferta relâmpago acaba em minutos"]
+      - ["Junte cupons e moedas", "Eles se somam ao desconto"]
+      - ["Ative nosso Telegram", "As ofertas saem lá primeiro"]
+    cta: SALVE ESTE CHECKLIST
+    legenda: |
+      ✅ Checklist pra aproveitar a Black Friday de verdade.
+
+      Salve 📌 e confira um por um antes do dia 27!
+
+      #blackfriday #checklist #dicasdecompras #promoção #economia #comdescontaco
+
+  - id: por-que-telegram
+    pilar: CONVERSÃO
+    tipo: lista
+    etiqueta: TELEGRAM
+    titulo: ["POR QUE ENTRAR", "NO NOSSO CANAL?"]
+    destaque: [1]
+    itens:
+      - ["Ofertas na hora", "24 horas por dia, assim que aparecem"]
+      - ["Link direto pra comprar", "Sem procurar, sem enrolação"]
+      - ["Cupons e relâmpagos", "Os que acabam rápido saem lá primeiro"]
+      - ["Grátis e sem spam", "Só ofertas que passam no nosso filtro"]
+    cta: LINK NA BIO
+    legenda: |
+      📲 O Instagram mostra só uma parte das ofertas. No Telegram sai TUDO, na hora.
+
+      Toque no link da bio e entre no canal @comdescontaco 🔔
+
+      #telegram #ofertas #promoção #achadinhos #blackfriday #comdescontaco
+
+  - id: avaliacoes
+    pilar: CONFIANÇA
+    tipo: lista
+    etiqueta: DICA
+    titulo: ["COMO LER", "AVALIAÇÕES"]
+    destaque: [1]
+    itens:
+      - ["Veja as fotos de quem comprou", "Elas mostram o produto real"]
+      - ["Leia as notas mais baixas", "Revelam os problemas mais comuns"]
+      - ["Olhe as avaliações recentes", "A qualidade pode mudar com o tempo"]
+      - ["Confira quantos vendidos", "Muitas vendas trazem mais segurança"]
+    cta: SALVE E COMPARTILHE
+    legenda: |
+      ⭐ Nota alta nem sempre conta a história toda.
+
+      Antes de comprar, faça estas 4 checagens 👆 É o mesmo filtro que usamos pra escolher as ofertas daqui.
+
+      #avaliações #dicas #comprasonline #achadinhos #comdescontaco
+
+  - id: contagem-bf-3
+    publicar_em: "2026-11-26"
+    pilar: CONVERSÃO
+    tipo: contagem
+    etiqueta: É AMANHÃ?
+    data_alvo: "2026-11-27"
+    evento: BLACK FRIDAY
+    texto: "Ative as notificações do nosso Telegram. As ofertas relâmpago vão sair a qualquer hora, inclusive de madrugada."
+    cta: LINK NA BIO
+    legenda: |
+      ⏳ Está chegando a hora!
+
+      As ofertas relâmpago da Black Friday acabam em minutos e muitas saem de madrugada.
+
+      🔔 Entre no Telegram (link na bio) e ative as notificações.
+
+      #blackfriday #blackfriday2026 #ofertasrelampago #promoção #comdescontaco
+
+  - id: frete-gratis
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: FRETE GRÁTIS
+    titulo: ["3 JEITOS DE", "NÃO PAGAR FRETE"]
+    destaque: [1]
+    itens:
+      - ["Cupom de frete grátis", "Resgate antes de finalizar a compra"]
+      - ["Junte no mesmo vendedor", "Compras juntas ajudam a bater o mínimo"]
+      - ["Fique de olho nas campanhas", "Datas especiais liberam frete grátis"]
+    cta: SALVE ESTE POST
+    legenda: |
+      🚚 Frete caro estraga qualquer promoção.
+
+      Salve estas dicas 📌 e confira as campanhas de frete grátis no nosso Telegram (link na bio).
+
+      #fretegratis #cupom #dicas #economia #comprasonline #comdescontaco
+
+  - id: dezembro
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: CALENDÁRIO
+    titulo: ["DEPOIS DA BLACK", "AINDA TEM MAIS"]
+    destaque: [1]
+    itens:
+      - ["Cyber Monday", "Segunda-feira depois da Black Friday"]
+      - ["12.12", "Data dupla com cupons de fim de ano"]
+      - ["Natal", "Compre antes para garantir a entrega"]
+      - ["Liquidações de janeiro", "Promoções de virada de ano"]
+    cta: SALVE O CALENDÁRIO
+    legenda: |
+      📅 Perdeu alguma oferta na Black Friday? Calma, ainda vem muita promoção por aí.
+
+      Salve o calendário 📌 e acompanhe tudo no nosso Telegram (link na bio).
+
+      #promoção #natal #1212 #cybermonday #calendario #comdescontaco
+
+  - id: natal-checklist
+    pilar: ALCANCE
+    tipo: lista
+    etiqueta: NATAL
+    titulo: ["PRESENTE BOM", "SEM GASTAR MUITO"]
+    destaque: [1]
+    itens:
+      - ["Defina um valor por pessoa", "E siga o limite"]
+      - ["Compre com antecedência", "Evita frete expresso caro"]
+      - ["Aproveite as datas duplas", "12.12 tem os maiores cupons"]
+      - ["Compare antes de comprar", "O mesmo item varia muito de preço"]
+    cta: COMPARTILHE
+    legenda: |
+      🎁 Natal chegando! Dá pra presentear todo mundo sem estourar o orçamento.
+
+      Salve 📌 e marque quem precisa ver 👇
+
+      #natal #presentes #economia #dicas #promoção #comdescontaco
