@@ -23,7 +23,7 @@ def main():
                      headers=auth, timeout=30)
     if r.ok:
         d = r.json()
-        print(f"✅ Token OK. Conta: @{d.get('username')} | seguidores: {d.get('followers_count')} "
+        print(f"✅ Token OK. Conta: @{d.get('username')} | ID da conta: {d.get('id')} | seguidores: {d.get('followers_count')} "
               f"| posts: {d.get('media_count')}")
     else:
         ok = False
