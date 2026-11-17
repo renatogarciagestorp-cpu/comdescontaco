@@ -69,11 +69,52 @@ export async function tratarComentario(env, v, contaId) {
   if (ok) {
     const resp = RESPOSTAS_PUBLICAS[Math.floor(Math.random() * RESPOSTAS_PUBLICAS.length)];
     await ig(env, `${v.id}/replies`, { message: resp });
+    console.log(`direct enviado para ${usuario || v.from?.id} (comentário ${v.id})`);
   }
   return ok ? "enviado" : "falhou";
 }
 
+// ---------- Varredura a cada minuto (Cron Trigger) ----------
+// A Meta só envia webhooks de comentários depois que o app é aprovado e publicado.
+// Enquanto isso (e como reserva depois), o robô busca os comentários recentes sozinho.
+// Não há risco de direct duplicado: a Meta aceita só UMA resposta privada por comentário.
+const JANELA_MIN = 3; // olha comentários dos últimos 3 minutos
+
+async function igGet(env, caminho, params) {
+  const url = new URL(`${API}/${caminho}`);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const r = await fetch(url, { headers: { Authorization: `Bearer ${env.INSTAGRAM_TOKEN}` } });
+  if (!r.ok) {
+    console.log(`erro GET ${caminho}: ${r.status} ${await r.text()}`);
+    return [];
+  }
+  return (await r.json()).data || [];
+}
+
+const quando = (ts) => Date.parse(String(ts).replace(/([+-]\d{2})(\d{2})$/, "$1:$2"));
+
+export async function varrerComentarios(env, agora = Date.now()) {
+  const limite = agora - JANELA_MIN * 60 * 1000;
+  const posts = await igGet(env, `${env.INSTAGRAM_USER_ID}/media`, { fields: "id,timestamp", limit: "15" });
+  const resultados = [];
+  for (const post of posts) {
+    if (quando(post.timestamp) < agora - 7 * 86400 * 1000) continue; // resposta privada só vale por 7 dias
+    const comentarios = await igGet(env, `${post.id}/comments`, {
+      fields: "id,text,timestamp,from{id,username}", limit: "50",
+    });
+    for (const c of comentarios) {
+      if (quando(c.timestamp) < limite) continue;
+      resultados.push(await tratarComentario(env, { ...c, media: { id: post.id } }, env.INSTAGRAM_USER_ID));
+    }
+  }
+  return resultados;
+}
+
 export default {
+  async scheduled(evento, env, ctx) {
+    ctx.waitUntil(varrerComentarios(env));
+  },
+
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
 

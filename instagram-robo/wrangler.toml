@@ -11,3 +11,7 @@ TELEGRAM_LINK = "https://t.me/comdescontaco"
 #   npx wrangler secret put INSTAGRAM_USER_ID
 #   npx wrangler secret put APP_SECRET
 #   npx wrangler secret put VERIFY_TOKEN
+
+# Varre os comentários a cada minuto (a Meta só manda webhook de comentário após o app ser aprovado)
+[triggers]
+crons = ["* * * * *"]

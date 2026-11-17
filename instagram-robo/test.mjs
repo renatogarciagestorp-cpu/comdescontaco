@@ -44,3 +44,32 @@ chamadas.length = 0; b = evento("quero", "999");
 await worker.fetch(new Request("https://w/", { method: "POST", body: b, headers: { "X-Hub-Signature-256": assinar(b) } }), env, ctx);
 await ctx.p; assert.equal(chamadas.length, 0);
 console.log("\nTODOS OS TESTES PASSARAM");
+
+// ---- varredura por Cron ----
+import { varrerComentarios } from "./index.js";
+const agora = Date.parse("2026-11-17T16:40:00Z");
+chamadas.length = 0;
+const gets = [];
+globalThis.fetch = async (url, opt = {}) => {
+  const u = String(url);
+  if (u === env.LINKS_URL) return new Response("{}");
+  if (!opt.method || opt.method === "GET") {
+    gets.push(u);
+    if (u.includes("/999/media")) return new Response(JSON.stringify({ data: [
+      { id: "P1", timestamp: "2026-11-17T10:00:00+0000" },
+      { id: "VELHO", timestamp: "2026-10-01T10:00:00+0000" } ] }));
+    if (u.includes("/P1/comments")) return new Response(JSON.stringify({ data: [
+      { id: "N1", text: "Quero!", timestamp: "2026-11-17T16:39:10+0000", from: { id: "555", username: "maria" } },
+      { id: "N2", text: "lindo", timestamp: "2026-11-17T16:39:20+0000", from: { id: "556", username: "joao" } },
+      { id: "A1", text: "quero", timestamp: "2026-11-17T16:20:00+0000", from: { id: "557", username: "ana" } } ] }));
+    return new Response("{}");
+  }
+  chamadas.push({ url: u, body: JSON.parse(opt.body) });
+  return new Response("{}");
+};
+const res = await varrerComentarios(env, agora);
+assert.deepEqual(res, ["enviado", "ignorado"]);            // A1 é antigo, N2 não tem palavra-chave
+assert(!gets.some((g) => g.includes("VELHO")));            // post com mais de 7 dias é pulado
+assert.equal(chamadas[0].body.recipient.comment_id, "N1");
+assert.match(chamadas[0].body.message.text, /t\.me\/comdescontaco/); // sem link de produto → Telegram
+console.log("VARREDURA OK");
