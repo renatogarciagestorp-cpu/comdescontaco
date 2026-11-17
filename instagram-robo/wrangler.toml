@@ -3,8 +3,7 @@ main = "index.js"
 compatibility_date = "2025-01-01"
 
 [vars]
-# Troque SEU_USUARIO/SEU_REPOSITORIO pelo seu repositório do GitHub
-LINKS_URL = "https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPOSITORIO/main/data/instagram_links.json"
+LINKS_URL = "https://raw.githubusercontent.com/renatogarciagestorp-cpu/comdescontaco/main/data/instagram_links.json"
 TELEGRAM_LINK = "https://t.me/comdescontaco"
 
 # Segredos (NÃO coloque aqui). Cadastre com:
