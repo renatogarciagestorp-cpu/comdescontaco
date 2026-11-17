@@ -129,6 +129,11 @@ def carregar():
 def gerar(cfg):
     banco, estado = carregar()
     hoje = datetime.now(BR).date()
+    if estado.get("ultimo_dia") == hoje.isoformat():
+        print("[conteudo] já houve post de conteúdo hoje; nada a fazer.")
+        estado["fila"] = None
+        ESTADO.write_text(json.dumps(estado, ensure_ascii=False, indent=1))
+        return
     # Posts com "publicar_em" saem exatamente nesse dia; os demais seguem a ordem do banco.
     do_dia = [p for p in banco if p.get("publicar_em") == hoje.isoformat()]
     normais = [p for p in banco if not p.get("publicar_em")]
@@ -189,6 +194,7 @@ def publicar():
     except Exception as e:  # story é bônus: não impede o post do feed
         print(f"[aviso] story não publicado: {e}")
     estado["publicados"].append(item["id"])
+    estado["ultimo_dia"] = datetime.now(BR).date().isoformat()
     estado["fila"] = None
     ESTADO.write_text(json.dumps(estado, ensure_ascii=False, indent=1))
 
