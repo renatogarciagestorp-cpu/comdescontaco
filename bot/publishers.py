@@ -96,7 +96,8 @@ def telegram_enviar_foto(caminho_img, legenda, botao_texto, botao_link, sem_som=
 
 
 # ---------------- Instagram (Graph API) ----------------
-IG = "https://graph.instagram.com/v21.0"
+# Instagram API com login unificado (token de usuário do sistema, não expira)
+IG = "https://graph.facebook.com/v27.0"
 
 
 def instagram_publicar(url_imagem_publica, legenda) -> str:

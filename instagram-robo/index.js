@@ -4,7 +4,7 @@
 //   2) responde o comentário publicamente ("te mandei no direct"), o que engaja o post.
 // O link de cada post vem de data/instagram_links.json, que o bot grava no GitHub.
 
-const API = "https://graph.instagram.com/v21.0";
+const API = "https://graph.facebook.com/v27.0"; // login unificado
 
 const PALAVRAS = ["quero", "eu quero", "link", "manda", "me manda", "eu", "👍", "🔥", "😍"];
 
