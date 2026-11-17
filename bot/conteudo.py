@@ -99,7 +99,7 @@ def _item_compacto(img, d, c, y, numero, titulo, sub, alto):
     d.text((z(180), z(m + 24)), sub, font=_font(800, 24), fill="#5B5470", anchor="lm")
 
 
-def story(cfg, feed: Image.Image) -> Image.Image:
+def story(cfg, feed: Image.Image, titulo="NOVO POST", chamada="VEJA NO NOSSO PERFIL") -> Image.Image:
     """Versão 1080x1920 para Stories: o post no centro + chamada para o perfil."""
     c = cfg["cores"]
     SW, SH = 1080, 1920
@@ -107,11 +107,11 @@ def story(cfg, feed: Image.Image) -> Image.Image:
     b = Image.new("RGB", (SW, SH), c["fundo2"])
     img = Image.composite(b, a, Image.linear_gradient("L").resize((SW, SH)))
     d = ImageDraw.Draw(img)
-    d.text((SW / 2, 190), "NOVO POST", font=ImageFont_(900, 64), fill=c["destaque"], anchor="mm")
+    d.text((SW / 2, 190), titulo, font=ImageFont_(900, 64), fill=c["destaque"], anchor="mm")
     f = feed.resize((900, 1125), Image.LANCZOS)
     img.paste(f, ((SW - 900) // 2, 290))
     d.rounded_rectangle((170, 1500, SW - 170, 1600), radius=50, fill=c["destaque"])
-    d.text((SW / 2, 1550), "VEJA NO NOSSO PERFIL", font=ImageFont_(900, 40), fill=c["fundo"], anchor="mm")
+    d.text((SW / 2, 1550), chamada, font=ImageFont_(900, 40), fill=c["fundo"], anchor="mm")
     d.text((SW / 2, 1680), cfg["canal"]["arroba_instagram"], font=ImageFont_(800, 44), fill=c["texto"], anchor="mm")
     return img
 

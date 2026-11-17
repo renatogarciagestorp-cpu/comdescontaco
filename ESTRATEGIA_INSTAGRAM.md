@@ -39,11 +39,14 @@ Para trocar a capa: segure o destaque → Editar destaque → Editar capa → es
 
 ## 2. O que o robô já faz sozinho
 
-| Conteúdo | Frequência | Onde |
+| Conteúdo | Frequência | Formato |
 |---|---|---|
-| Post de conteúdo (dicas, Black Friday, engajamento) | 1 por dia, às 19h | Feed + Stories |
-| Ofertas da Shopee (quando a API for liberada) | até 8 por dia, só as melhores | Feed |
+| Post de conteúdo (dicas, Black Friday, engajamento) | 1 por dia, às 19h | **Reel animado** (aparece também no feed) + **Story** |
+| Ofertas da Shopee (quando a API for liberada) | até 8 por dia, só as melhores | as 2 melhores viram **Reel**, as demais saem como **imagem**; todas ganham **Story** |
 | Resposta "comente QUERO" | na hora | Direct + resposta no comentário |
+
+**Tudo é gerado e publicado pelo robô.** Se um Reel falhar, ele publica a imagem no lugar.
+O que a API da Meta não permite automatizar nos Stories: enquete, caixa de perguntas, link e música. Esses adesivos são opcionais, para quando você quiser postar pelo app.
 
 O calendário está em `conteudo/banco.yaml`. Para adicionar posts, siga o mesmo formato. Quando o banco acabar, eu escrevo mais.
 
@@ -58,20 +61,23 @@ O calendário está em `conteudo/banco.yaml`. Para adicionar posts, siga o mesmo
 | 18/11 | 5 sinais de desconto falso | Compartilhar nos Stories pessoais |
 | 19/11 | ⏳ Contagem: faltam 8 dias | Story com enquete "Vai comprar na Black?" |
 | 20/11 | O que você quer achar em promoção? | **Responder todos os comentários** |
-| 21/11 | Cupom em 4 passos | 1 Reels (roteiro A abaixo) |
+| 21/11 | Cupom em 4 passos (Reel automático) | Responder comentários |
 | 22/11 | Marque o amigo que paga caro | Responder comentários |
 | 23/11 | Não caia em golpe | Enviar em grupos de família no WhatsApp |
-| 24/11 | ⏳ Contagem: faltam 3 dias | 1 Reels (roteiro B) |
+| 24/11 | ⏳ Contagem: faltam 3 dias (Reel automático) | Compartilhar nos seus Stories |
 | 25/11 | Checklist Black Friday | Story com caixa de perguntas |
 | 26/11 | ⏳ É amanhã! | Story: "Ative as notificações do Telegram" |
 | **27/11** | **Por que entrar no Telegram** + ofertas | Stories ao longo do dia mostrando as ofertas |
-| 28/11 em diante | Avaliações, frete, dezembro, Natal | Manter 1 Reels por semana |
+| 28/11 em diante | Avaliações, frete, dezembro, Natal | Responder comentários |
 
 ---
 
 ## 4. Reels (o que mais traz seguidores novos)
 
-Reels são mostrados para quem **não** te segue. Grave com o celular, de 7 a 15 segundos, com música em alta do próprio Instagram.
+Os Reels são **gerados e publicados automaticamente** pelo robô: conteúdo diário e as 2 melhores ofertas do dia.
+Para ter trilha sonora, coloque músicas livres de direitos em `assets/audio/`.
+
+Se um dia quiser gravar um Reel extra (opcional), estes roteiros funcionam bem:
 
 - **Roteiro A, "Eu paguei X, você pode pagar Y":** tela do produto com o preço cheio → corte → o mesmo produto com desconto → texto "comente QUERO".
 - **Roteiro B, "3 achados abaixo de R$ 50":** gravação de tela rolando 3 produtos → texto grande com o preço → "link no direct: comente QUERO".
@@ -80,12 +86,12 @@ Reels são mostrados para quem **não** te segue. Grave com o celular, de 7 a 15
 
 ---
 
-## 5. Rotina diária (15 minutos)
+## 5. Rotina diária (10 minutos; todo o resto é automático)
 
-1. **Responder todos os comentários** na primeira hora depois do post das 19h. O algoritmo premia conversa.
-2. **3 Stories por dia**, com uma enquete ou caixa de perguntas (adesivos interativos aumentam o alcance).
-3. **Comentar em 10 posts** de perfis grandes de ofertas, cupons ou economia. Comentários úteis, nunca "sigam-me". Quem lê vê o seu perfil.
-4. Compartilhar o post do dia nos seus Stories pessoais e em grupos de WhatsApp.
+1. **Responder todos os comentários** na primeira hora depois do post das 19h. O algoritmo premia conversa. Os "quero" o robô responde sozinho.
+2. **Comentar em 10 posts** de perfis grandes de ofertas, cupons ou economia. Comentários úteis, nunca "sigam-me". Quem lê vê o seu perfil.
+3. Compartilhar o Reel do dia nos seus Stories pessoais e em grupos de WhatsApp.
+4. (Opcional) Um Story com enquete pelo app, por exemplo "Vai comprar na Black Friday?", para aumentar o alcance.
 
 ---
 

@@ -139,7 +139,15 @@ def ciclo(cfg):
                         video = renderizar(roteiro_oferta(cfg, p), ARTS / f"{p.id}_reel.mp4").name
                     except Exception as e:
                         print(f"[aviso] reel da oferta não gerado: {e}")
+                story_arq = None
+                if cfg.get("instagram", {}).get("stories_ofertas", True):
+                    from PIL import Image as _Img
+                    from .conteudo import story as _story
+                    titulo = "⚡ OFERTA RELÂMPAGO" if p.desconto >= 50 else "ACHADO DO DIA"
+                    st = _story(cfg, _Img.open(arq), titulo.replace("⚡ ", ""), 'COMENTE "QUERO" NO POST')
+                    story_arq = salvar(st, ARTS / f"{p.id}_story.jpg").name
                 fila_ig.append({
+                    "story": story_arq,
                     "video": video,
                     "arquivo": arq.name,
                     "legenda": pub.legenda_instagram(cfg, p),
@@ -180,6 +188,12 @@ def publicar_instagram():
                 except Exception as e:
                     print(f"[aviso] reel falhou, publicando imagem: {e}")
             media_id = media_id or pub.instagram_publicar(url, item["legenda"])
+            if item.get("story"):
+                try:
+                    surl = f"https://raw.githubusercontent.com/{repo}/{branch}/arts/{item['story']}"
+                    pub.instagram_publicar(surl, story=True)
+                except Exception as e:
+                    print(f"[aviso] story da oferta não publicado: {e}")
             links[media_id] = {"link": item["link"], "nome": item["nome"],
                                "preco": item["preco"], "ts": int(time.time())}
             print(f"[instagram] {item['arquivo']} → {media_id}")
