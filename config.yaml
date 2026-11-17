@@ -1,17 +1,19 @@
 # ============ Identidade do canal ============
 canal:
-  nome: "Garimpo Relâmpago"
-  arroba_telegram: "@garimporelampago"      # troque se o @ já estiver em uso
-  link_telegram: "https://t.me/garimporelampago"
-  arroba_instagram: "@garimporelampago"
+  nome: "descontaco.com"
+  arroba_telegram: "@descontaco"      # troque se o @ já estiver em uso
+  link_telegram: "https://t.me/descontaco"
+  arroba_instagram: "@descontaco"
   aviso_afiliado: "Links de afiliado: podemos ganhar comissão, sem custo extra pra você."
 
 cores:
-  fundo: "#2D0A5B"      # roxo profundo
-  fundo2: "#4B1497"     # roxo vibrante (degradê)
-  destaque: "#FFD60A"   # amarelo elétrico
-  alerta: "#FF2E88"     # rosa choque (selo de %)
+  fundo: "#1E0742"      # roxo-noite: faz o produto e o preço "saltarem"
+  fundo2: "#4A12A0"     # roxo vibrante (degradê e brilho atrás do produto)
+  destaque: "#FFD60A"   # amarelo: preço e botão (maior atenção visual)
+  alerta: "#FF1F4B"     # vermelho: % de desconto e urgência
+  ganho: "#2EF2A0"      # verde: economia (sensação de ganho)
   texto: "#FFFFFF"
+  suave: "#C9B8F2"      # textos secundários
 
 # ============ Busca de ofertas (Shopee) ============
 busca:
@@ -50,6 +52,8 @@ filtros:
 publicacao:
   posts_por_execucao: 2          # o GitHub roda a cada ~30 min → ~4 posts/hora
   intervalo_segundos_entre_posts: 60
-  horario_silencioso: [0, 7]     # não posta entre 0h e 7h (horário de Brasília)
+  # Posta 24h. Neste intervalo (horário de Brasília) os posts saem SEM SOM de notificação,
+  # para não incomodar quem dorme e evitar que silenciem o canal. Use [] para sempre tocar.
+  madrugada_sem_som: [0, 7]
   campanha_shopee_a_cada_horas: 6  # posta uma campanha/cupom oficial da Shopee
-  instagram_posts_por_dia: 6       # só os melhores vão pro Instagram
+  instagram_posts_por_dia: 8       # só os melhores vão pro Instagram
