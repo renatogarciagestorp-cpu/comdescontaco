@@ -75,43 +75,69 @@ def ler_pagina(url: str) -> dict:
                      timeout=30, allow_redirects=True)
     r.raise_for_status()
     pg, final = r.text, r.url
-    m = _metas(pg)
-    info = {"url_final": final,
-            "nome": re.sub(r"\s*[|-]\s*Mercado Livre.*$", "", m.get("og:title", "")).strip(),
-            "imagem": m.get("og:image", "")}
+    return extrair(pg, final)
 
-    for prod in _jsonld(pg):
+
+RE_REAIS = r"([\d.]+)\s*reais(?:\s*com\s*(\d+)\s*centavos)?"
+
+
+def _reais(inteiro, centavos):
+    return float(inteiro.replace(".", "")) + int(centavos or 0) / 100
+
+
+def extrair(pg: str, final: str) -> dict:
+    """Lê nome, foto e preços de uma página de produto OU da vitrine de afiliado (/social/...),
+    que mostra o produto recomendado em destaque e outros produtos abaixo."""
+    m = _metas(pg)
+    titulo = m.get("og:title", "")
+    info = {"url_final": final, "imagem": m.get("og:image", "")}
+
+    # Vitrine: o título termina com " - R$ 55" (ou "R$ 55,30") = preço do produto em destaque
+    mp = re.search(r"\s*-\s*R\$\s*([\d.]+(?:,\d{1,2})?)\s*$", titulo)
+    if mp:
+        info["preco"] = numero_br(mp.group(1))
+        titulo = titulo[:mp.start()]
+    info["nome"] = re.sub(r"\s*[|-]\s*Mercado Livre.*$", "", titulo).strip()
+
+    for prod in _jsonld(pg):  # página de produto comum
         info["nome"] = info["nome"] or prod.get("name", "")
         img = prod.get("image")
         info["imagem"] = info["imagem"] or (img[0] if isinstance(img, list) else img or "")
         ofertas = prod.get("offers") or {}
         if isinstance(ofertas, list):
             ofertas = ofertas[0] if ofertas else {}
-        if ofertas.get("price"):
+        if ofertas.get("price") and "preco" not in info:
             info["preco"] = float(ofertas["price"])
         nota = prod.get("aggregateRating") or {}
         if nota.get("ratingValue"):
             info["nota"] = float(nota["ratingValue"])
         break
 
+    # Pares "Antes: X" -> "Agora: Y": usa o par cujo "Agora" bate com o preço do destaque
+    pares = re.findall(r"Antes:\s*" + RE_REAIS + r".{0,900}?Agora:\s*" + RE_REAIS, pg, re.S)
+    escolhido = None
+    for a1, a2, n1, n2 in pares:
+        antes, agora = _reais(a1, a2), _reais(n1, n2)
+        if "preco" not in info or abs(agora - info["preco"]) < 0.02:
+            escolhido = (antes, agora)
+            break
+    if escolhido:
+        info["preco_antigo"] = escolhido[0]
+        info.setdefault("preco", escolhido[1])
+    if "preco" not in info:
+        agora = re.search(r"Agora:\s*" + RE_REAIS, pg)
+        if agora:
+            info["preco"] = _reais(agora.group(1), agora.group(2))
     if "preco" not in info and m.get("price"):
         info["preco"] = float(m["price"])
-    antes = re.search(r"Antes:\s*([\d.]+)\s*reais(?:\s*com\s*(\d+)\s*centavos)?", pg)
-    if antes:
-        info["preco_antigo"] = float(antes.group(1).replace(".", "")) + int(antes.group(2) or 0) / 100
-    else:
-        orig = re.search(r'"original_price"\s*:\s*([\d.]+)', pg)
-        if orig:
-            info["preco_antigo"] = float(orig.group(1))
-    desc = re.search(r"(\d{1,2})%\s*OFF", pg)
-    if desc:
-        info["desconto"] = int(desc.group(1))
-    vend = re.search(r"\+?\s*([\d.]+)\s*(mil)?\s*vendidos", pg)
-    if vend:
-        info["vendas"] = int(float(vend.group(1).replace(".", "")) * (1000 if vend.group(2) else 1))
-    mlb = re.search(r"(MLB-?\d{6,})", final + pg[:5000])
+
+    if "/social/" not in final:  # só confia nesses dados na página do próprio produto
+        vend = re.search(r"\+?\s*([\d.]+)\s*(mil)?\s*vendidos", pg)
+        if vend:
+            info["vendas"] = int(float(vend.group(1).replace(".", "")) * (1000 if vend.group(2) else 1))
+    mlb = re.search(r"(MLB-?\d{6,})", final) or re.search(r"(MLB-?\d{6,})", info["imagem"])
     info["id"] = (mlb.group(1).replace("-", "") if mlb else
-                  hashlib.md5(final.encode()).hexdigest()[:12])
+                  hashlib.md5((info["nome"] or final).encode()).hexdigest()[:12])
     return info
 
 

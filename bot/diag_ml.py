@@ -4,7 +4,7 @@ import sys
 
 import requests
 
-from .mercadolivre import UA, _jsonld, _metas
+from .mercadolivre import UA, _jsonld, _metas, extrair
 
 url = sys.argv[1]
 r = requests.get(url, headers={"User-Agent": UA, "Accept-Language": "pt-BR,pt;q=0.9"}, timeout=30)
@@ -25,3 +25,5 @@ for nome, rx in [("fraction", r'andes-money-amount__fraction[^>]*>([\d.]+)<'),
                  ("links_produto", r'https://(?:produto|www)\.mercadolivre\.com\.br/[^"\s]{10,120}')]:
     achados = re.findall(rx, pg)
     print(f"{nome} ({len(achados)}):", achados[:6])
+
+print("RESULTADO DO ROBÔ:", extrair(pg, r.url))
