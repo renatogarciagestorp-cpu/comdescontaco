@@ -1,4 +1,4 @@
-# ⚡ descontaco.com: bot de ofertas automático
+# ⚡ comdescontaco: bot de ofertas automático
 
 A cada 30 minutos, 24 horas por dia, de graça no GitHub, o bot:
 
@@ -31,11 +31,11 @@ Só usamos gatilhos **verdadeiros**: nada de contador falso ou de "últimas unid
 
 ## Passo a passo (uma vez só)
 
-### 1. Shopee: credenciais da API
+### 1. Shopee: credenciais da API (passo a passo completo em `GUIA_SHOPEE.md`)
 No portal **affiliate.shopee.com.br**, abra o menu **Open API** e peça o acesso. Depois da aprovação, aparecem o **AppID** e o **Secret**.
 
 ### 2. Telegram: canal e bot
-1. Crie um **Canal público** com o nome `descontaco.com` e o link `@descontaco` (se estiver em uso, escolha outro e troque em `config.yaml`).
+1. Crie um **Canal público** com o nome `comdescontaco` e o link `@comdescontaco` (se estiver em uso, escolha outro e troque em `config.yaml`).
 2. No **@BotFather**, use `/newbot` e guarde o **token**.
 3. Adicione o bot como **administrador** do canal.
 
@@ -48,9 +48,9 @@ No portal **affiliate.shopee.com.br**, abra o menu **Open API** e peça o acesso
 | `SHOPEE_APP_ID` | AppID da Shopee |
 | `SHOPEE_SECRET` | Secret da Shopee |
 | `TELEGRAM_BOT_TOKEN` | token do BotFather |
-| `TELEGRAM_CHAT_ID` | `@descontaco` |
+| `TELEGRAM_CHAT_ID` | `@comdescontaco` |
 
-3. Em **Actions → descontaco bot → Run workflow**, rode para testar. Depois disso ele roda sozinho.
+3. Em **Actions → comdescontaco bot → Run workflow**, rode para testar. Depois disso ele roda sozinho.
 
 ### 4. Instagram: publicação automática
 1. Deixe o perfil como **conta Profissional** (Criador ou Empresa).
@@ -74,12 +74,12 @@ O GitHub não consegue "escutar" comentários. Por isso, o robô de comentários
      npx wrangler secret put VERIFY_TOKEN         # invente uma senha qualquer
      npx wrangler deploy
      ```
-   - o comando mostra um endereço como `https://descontaco-instagram.SEUNOME.workers.dev`.
+   - o comando mostra um endereço como `https://comdescontaco-instagram.SEUNOME.workers.dev`.
 3. No painel do app da Meta, em **Instagram → Webhooks**:
    - **URL de callback** = esse endereço;
    - **Token de verificação** = o `VERIFY_TOKEN` que você inventou;
    - assine o campo **comments**.
-4. ⚠️ **Análise do app pela Meta:** enquanto o app está em "modo de desenvolvimento", o robô só responde contas cadastradas como testadoras. Para responder **qualquer pessoa**, envie o app para análise (App Review) pedindo as permissões de comentários e mensagens. Isso pode levar alguns dias e exige gravar um vídeo curto mostrando o funcionamento.
+4. ⚠️ **Análise do app pela Meta:** veja o passo a passo completo em `GUIA_INSTAGRAM.md`.
 
 As palavras que disparam o robô são "quero", "eu quero", "link", "manda", "eu", 👍, 🔥 e 😍. Elas ficam em `instagram-robo/index.js`.
 

@@ -7,7 +7,7 @@ for (const t of ["Quero", "QUERO!!", "eu quero muito", "quero 😍", "Manda o li
 for (const t of ["não sei", "querosene", "lindo", ""]) assert(!temPalavraChave(t), t);
 
 const env = { INSTAGRAM_TOKEN: "tok", INSTAGRAM_USER_ID: "999", APP_SECRET: "seg", VERIFY_TOKEN: "vt",
-  LINKS_URL: "https://raw/links.json", TELEGRAM_LINK: "https://t.me/descontaco" };
+  LINKS_URL: "https://raw/links.json", TELEGRAM_LINK: "https://t.me/comdescontaco" };
 const chamadas = [];
 globalThis.fetch = async (url, opt = {}) => {
   if (url === env.LINKS_URL) return new Response(JSON.stringify({ M1: { link: "https://s.shopee.com.br/abc", nome: "Fone TWS", preco: "R$ 47,90" } }));

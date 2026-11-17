@@ -1,9 +1,9 @@
 # ============ Identidade do canal ============
 canal:
-  nome: "descontaco.com"
-  arroba_telegram: "@descontaco"      # troque se o @ já estiver em uso
-  link_telegram: "https://t.me/descontaco"
-  arroba_instagram: "@descontaco"
+  nome: "comdescontaco"
+  arroba_telegram: "@comdescontaco"      # troque se o @ já estiver em uso
+  link_telegram: "https://t.me/comdescontaco"
+  arroba_instagram: "@comdescontaco"
   aviso_afiliado: "Links de afiliado: podemos ganhar comissão, sem custo extra pra você."
 
 cores:

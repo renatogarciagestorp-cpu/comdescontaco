@@ -70,7 +70,7 @@ def legenda_instagram(cfg, p) -> str:
         f"📲 Ofertas relâmpago o dia todo no nosso Telegram: {ch['arroba_telegram']} (link na bio)",
         "",
         f"#publi {ch['aviso_afiliado']}",
-        "#promoção #achadinhos #shopee #ofertas #desconto #cupom #descontaço",
+        "#promoção #achadinhos #shopee #ofertas #desconto #cupom #comdescontaco",
     ])
 
 
