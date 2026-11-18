@@ -1,5 +1,6 @@
 """Prévia privada: gera a arte e o Reel de um link do Mercado Livre e manda só para o dono do bot
 (TELEGRAM_ADMIN_ID). Nada é publicado no canal nem no Instagram."""
+import json
 import os
 import sys
 from pathlib import Path
@@ -31,13 +32,14 @@ def main():
               (ig, "Arte do Instagram", "👀 PRÉVIA DO INSTAGRAM (não publicada)\n\n" + legenda_instagram(cfg, p), None))
     for arq, nome, texto, modo in envios:
         dados = {"chat_id": chat, "caption": texto[:1024]}
-        if modo:
+        if modo:  # prévia do canal: igual ao post real, com o botão de compra
             dados["parse_mode"] = modo
+            dados["reply_markup"] = json.dumps({"inline_keyboard": [[{"text": "🛒 COMPRAR AGORA", "url": url}]]})
         with open(arq, "rb") as f:
             r = requests.post(f"{api}/sendPhoto", data=dados, files={"photo": f}, timeout=60)
         print(nome, r.status_code, r.text[:120])
     with open(reel, "rb") as f:
-        r = requests.post(f"{api}/sendVideo", data={"chat_id": chat, "caption": f"{legenda}\nReel"},
+        r = requests.post(f"{api}/sendVideo", data={"chat_id": chat, "caption": f"{legenda}\nReel (só Instagram)"},
                           files={"video": f}, timeout=120)
     print("Reel", r.status_code, r.text[:120])
 

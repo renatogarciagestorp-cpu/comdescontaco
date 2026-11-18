@@ -52,6 +52,7 @@ def legenda_telegram(cfg, p, link) -> str:
         f"🏬 {p.plataforma}",
         "",
         f"👉 <a href=\"{html.escape(link)}\"><b>COMPRAR AGORA</b></a>",
+        f"🔗 {html.escape(link)}",
         "",
         "<i>⏳ Preço e estoque podem mudar a qualquer momento.</i>",
     ]
