@@ -36,7 +36,7 @@ def legenda_telegram(cfg, p, link) -> str:
         f"🛍️ <b>{nome}</b>",
         "",
         f"❌ De <s>{brl(p.preco_antigo)}</s>" if p.preco_antigo > p.preco else None,
-        f"✅ Por <b>{brl(p.preco)}</b>  🔻{p.desconto}% OFF",
+        f"✅ Por <b>{brl(p.preco)}</b>  🔻{p.desconto}% OFF" if p.desconto > 0 else f"✅ <b>{brl(p.preco)}</b>",
         f"💰 Você economiza <b>{brl(economia)}</b>" if economia >= 1 else None,
         (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else
          (f"📦 {mil(p.vendas)} vendidos" if p.vendas else None)),
@@ -66,7 +66,7 @@ def legenda_instagram(cfg, p) -> str:
         "💬 Comente QUERO que eu te mando o link no direct!",
         "",
         f"🔥 {p.nome}",
-        f"De {brl(p.preco_antigo)} por {brl(p.preco)} (-{p.desconto}%)",
+        (f"De {brl(p.preco_antigo)} por {brl(p.preco)} (-{p.desconto}%)" if p.desconto > 0 else f"Por {brl(p.preco)}"),
         (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else f"🏬 {p.plataforma}"),
         "",
         f"📲 Ofertas relâmpago o dia todo no nosso Telegram: {ch['arroba_telegram']} (link na bio)",

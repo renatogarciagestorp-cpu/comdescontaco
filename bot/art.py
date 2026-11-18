@@ -166,18 +166,24 @@ def arte_produto(cfg, p, canal: str = "telegram") -> Image.Image:
     foto.thumbnail((z(card[2] - card[0] - 120), z(card[3] - card[1] - 130)), Image.LANCZOS)
     img.paste(foto, (z((card[0] + card[2]) / 2) - foto.width // 2, z(card[1] + 30)))
 
-    # Prova social dentro do cartão
-    txt = f"{p.nota:.1f}".replace(".", ",") + f"  •  {mil(p.vendas)} vendidos"
-    f = _font(800, 28)
-    pw = 5 * 30 + 16 + d.textlength(txt, font=f) / K + 48
-    py = card[3] - 82
-    d.rounded_rectangle((z(card[0] + 24), z(py), z(card[0] + 24 + pw), z(py + 58)),
-                        radius=z(29), fill="#F4F0FA")
-    for i in range(5):
-        _estrela(d, card[0] + 56 + i * 30, py + 29, 13, "#FFB800")
-    d.text((z(card[0] + 56 + 5 * 30), z(py + 29)), txt, font=f, fill="#2B2340", anchor="lm")
+    # Prova social dentro do cartão (só mostra o que existir de verdade)
+    partes = ([f"{p.nota:.1f}".replace(".", ",")] if p.nota else []) + \
+             ([f"{mil(p.vendas)} vendidos"] if p.vendas else [])
+    if partes:
+        txt = "  •  ".join(partes)
+        f = _font(800, 28)
+        estrelas = 5 * 30 + 16 if p.nota else 0
+        pw = estrelas + d.textlength(txt, font=f) / K + 48
+        py = card[3] - 82
+        d.rounded_rectangle((z(card[0] + 24), z(py), z(card[0] + 24 + pw), z(py + 58)),
+                            radius=z(29), fill="#F4F0FA")
+        if p.nota:
+            for i in range(5):
+                _estrela(d, card[0] + 56 + i * 30, py + 29, 13, "#FFB800")
+        d.text((z(card[0] + 48 + estrelas), z(py + 29)), txt, font=f, fill="#2B2340", anchor="lm")
 
-    _selo_desconto(img, c, p.desconto, W - 168, 248)
+    if p.desconto > 0:
+        _selo_desconto(img, c, p.desconto, W - 168, 248)
 
     # Título curto (menos carga cognitiva)
     y = 800

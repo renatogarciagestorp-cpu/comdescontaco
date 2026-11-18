@@ -249,14 +249,16 @@ def roteiro_oferta(cfg, p):
         d.ellipse((z(6), z(6), z(254), z(254)), fill=c["alerta"], outline="#FFFFFF", width=z(8))
         d.text((z(130), z(112)), f"-{p.desconto}%", font=_font(900, 76), fill="#FFFFFF", anchor="mm")
         d.text((z(130), z(178)), "OFF", font=_font(900, 36), fill=c["destaque"], anchor="mm")
-    r.add(camada(260, 260, selo).rotate(12, resample=Image.BICUBIC, expand=True), 860, 480, 0.9, "pop", 0.45)
+    if p.desconto > 0:
+        r.add(camada(260, 260, selo).rotate(12, resample=Image.BICUBIC, expand=True), 860, 480, 0.9, "pop", 0.45)
 
     for i, l in enumerate(_quebrar(ImageDraw.Draw(Image.new("RGB", (1, 1))), p.nome, _font(800, 42),
                                    int((VW - 120) * S), 2)):
         r.add(linha_texto(l, 42, c["texto"], 800), VW / 2, 1100 + i * 52, 1.3 + 0.1 * i, "sobe")
 
-    estrelas = f"Nota {p.nota:.1f}".replace(".", ",") + f"  •  {mil(p.vendas)} vendidos"
-    r.add(linha_texto(estrelas, 34, c["suave"], 800), VW / 2, 1215, 1.6, "sobe")
+    partes = ([f"Nota {p.nota:.1f}".replace(".", ",")] if p.nota else []) + \
+             ([f"{mil(p.vendas)} vendidos"] if p.vendas else []) or [p.plataforma.upper()]
+    r.add(linha_texto("  •  ".join(partes), 34, c["suave"], 800), VW / 2, 1215, 1.6, "sobe")
     r.preco = p  # usado no desenho do preço animado
     r.add(botao(cfg, 'COMENTE "QUERO" E RECEBA O LINK'), VW / 2, 1580, 4.4, "pop", 0.5, pulso=True)
     r.add(linha_texto("o link chega no seu direct", 34, c["texto"], 800), VW / 2, 1672, 4.8, "sobe")
@@ -266,7 +268,7 @@ def roteiro_oferta(cfg, p):
     def quadro(t):
         img = base_quadro(t)
         d = ImageDraw.Draw(img)
-        if t >= 2.0:  # preço antigo, riscado em seguida
+        if t >= 2.0 and p.preco_antigo > p.preco:  # preço antigo, riscado em seguida
             antigo = f"De {brl(p.preco_antigo)}"
             fa = _font(800, 22)  # tamanho real 44 (o _font aplica 2x)
             w = d.textlength(antigo, font=fa)
@@ -277,7 +279,7 @@ def roteiro_oferta(cfg, p):
                 d.line((x0, 1287, x0 + w * pr, 1287), fill=c["alerta"], width=7)
         if t >= 2.6:  # valor "caindo" do antigo até o preço final
             k = ease_out(prog(t, 2.6, 1.2))
-            valor = p.preco_antigo + (p.preco - p.preco_antigo) * k
+            valor = p.preco_antigo + (p.preco - p.preco_antigo) * k if p.preco_antigo > p.preco else p.preco
             fp = _font(900, 60)  # tamanho real 120
             d.text((VW / 2, 1375), brl(valor), font=fp, fill=c["destaque"], anchor="mm")
         if t >= 3.9 and p.preco_antigo - p.preco >= 1:
