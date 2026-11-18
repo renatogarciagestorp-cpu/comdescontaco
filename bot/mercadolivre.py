@@ -147,7 +147,7 @@ def _baixar_foto_telegram(file_id) -> Image.Image:
     return Image.open(BytesIO(requests.get(url, timeout=60).content)).convert("RGB")
 
 
-def montar_produto(link: str, texto: str, foto=None) -> Produto:
+def montar_produto(link: str, texto: str, foto=None, exigir_desconto=True) -> Produto:
     """Junta o que veio da página com o que você escreveu na mensagem (o manual tem prioridade)."""
     info = {}
     try:
@@ -175,7 +175,11 @@ def montar_produto(link: str, texto: str, foto=None) -> Produto:
     antigo = info.get("preco_antigo") or preco
     if antigo < preco:
         antigo = preco
-    desconto = info.get("desconto") or (round((1 - preco / antigo) * 100) if antigo > preco else 0)
+    desconto = round((1 - preco / antigo) * 100) if antigo > preco else 0
+    if exigir_desconto and desconto <= 0:
+        valor = f"R$ {preco:.2f}".replace(".", ",")
+        raise ValueError(f"este produto está SEM desconto no Mercado Livre agora (só {valor}, sem preço "
+                         "antigo para mostrar). Escolha um produto com '% OFF' no painel de afiliados")
     return Produto(
         id="ML" + str(info.get("id") or hashlib.md5(link.encode()).hexdigest()[:12]),
         nome=info["nome"], imagem=imagem, link=link, link_original=link,

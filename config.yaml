@@ -43,6 +43,7 @@ busca:
   resultados_por_palavra: 30
 
 filtros:
+  exigir_desconto: true      # só publica oferta com preço original (de/por) e desconto real
   desconto_minimo: 30        # %
   nota_minima: 4.6           # estrelas
   vendas_minimas: 100
@@ -61,6 +62,6 @@ publicacao:
 # ============ Instagram ============
 instagram:
   conteudo_em_reels: true     # o post de conteúdo diário sai como Reel (vídeo) + Story
-  reels_ofertas_por_dia: 2    # as 2 melhores ofertas do dia viram Reel; as demais saem como imagem
+  reels_ofertas_por_dia: 0    # ofertas no Instagram saem só como IMAGEM (Reel só no conteúdo diário)
   stories_ofertas: true       # cada oferta publicada no Instagram também vira Story
   # Música: coloque .mp3 livres de direitos em assets/audio/ (ex.: Biblioteca de Áudio do YouTube)

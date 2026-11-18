@@ -108,16 +108,17 @@ def ciclo_mercadolivre(cfg, state, fila_ig, sem_som, links=None):
             return
     for chat_id, link, texto, foto in pedidos:
         try:
-            p = ml.montar_produto(link, texto, foto)
+            p = ml.montar_produto(link, texto, foto, cfg["filtros"].get("exigir_desconto", True))
             publicar_oferta(cfg, p, link, link, state, fila_ig, sem_som, forcar_instagram=True)
             chat_id and ml.responder(chat_id, f"✅ Publicado: {p.nome[:60]} por {pub.brl(p.preco)}"
                                   + (f" (-{p.desconto}%)" if p.desconto else ""))
             time.sleep(15)
         except Exception as e:
             print(f"[erro ml] {link}: {e}")
-            chat_id and ml.responder(chat_id, f"❌ Não publiquei {link}\nMotivo: {e}.\n"
-                                  "Tente de novo com os preços (ex.: 'de 199,90 por 99,90') ou mande uma FOTO "
-                                  "do produto com o link e os preços na legenda.")
+            dica = ("" if "SEM desconto" in str(e) else
+                    "\nTente de novo com os preços (ex.: 'de 199,90 por 99,90') ou mande uma FOTO "
+                    "do produto com o link e os preços na legenda.")
+            chat_id and ml.responder(chat_id, f"❌ Não publiquei {link}\nMotivo: {e}.{dica}")
 
 
 def ciclo(cfg, so_mercadolivre=False, links=None):
