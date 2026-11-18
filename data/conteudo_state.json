@@ -2,6 +2,12 @@
  "publicados": [
   "bf-sinais-desconto-falso"
  ],
- "fila": null,
+ "fila": {
+  "id": "comente-o-que-quer",
+  "arquivo": "conteudo_comente-o-que-quer_20261118.jpg",
+  "story": "conteudo_comente-o-que-quer_20261118_story.jpg",
+  "video": "conteudo_comente-o-que-quer_20261118.mp4",
+  "legenda": "💬 Queremos saber: o que você está esperando entrar em promoção?\n\nAir fryer? Fone? Tênis? Comenta aqui 👇 e a gente fica de olho pra você.\n\nAs ofertas saem primeiro no nosso Telegram (link na bio) ⚡\n\n#promoção #achadinhos #ofertas #blackfriday #comprasonline #comdescontaco"
+ },
  "ultimo_dia": "2026-11-17"
 }
