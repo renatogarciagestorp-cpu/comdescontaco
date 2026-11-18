@@ -9,7 +9,7 @@ import yaml
 
 from .art import arte_produto, salvar
 from .mercadolivre import montar_produto
-from .publishers import limpar_titulo
+from .publishers import legenda_instagram, legenda_telegram, limpar_titulo
 from .video import renderizar, roteiro_oferta
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -27,10 +27,14 @@ def main():
     api = f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}"
     chat = os.environ["TELEGRAM_ADMIN_ID"]
     legenda = f"👀 PRÉVIA (não publicada)\n{p.nome}\n{p.preco:.2f}".replace(".", ",")
-    for arq, nome in ((tg, "Arte do Telegram"), (ig, "Arte do Instagram")):
+    envios = ((tg, "Arte do Telegram", "👀 PRÉVIA DO CANAL (não publicada)\n\n" + legenda_telegram(cfg, p, url), "HTML"),
+              (ig, "Arte do Instagram", "👀 PRÉVIA DO INSTAGRAM (não publicada)\n\n" + legenda_instagram(cfg, p), None))
+    for arq, nome, texto, modo in envios:
+        dados = {"chat_id": chat, "caption": texto[:1024]}
+        if modo:
+            dados["parse_mode"] = modo
         with open(arq, "rb") as f:
-            r = requests.post(f"{api}/sendPhoto", data={"chat_id": chat, "caption": f"{legenda}\n{nome}"},
-                              files={"photo": f}, timeout=60)
+            r = requests.post(f"{api}/sendPhoto", data=dados, files={"photo": f}, timeout=60)
         print(nome, r.status_code, r.text[:120])
     with open(reel, "rb") as f:
         r = requests.post(f"{api}/sendVideo", data={"chat_id": chat, "caption": f"{legenda}\nReel"},
