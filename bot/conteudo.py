@@ -193,6 +193,14 @@ def publicar():
         print("[conteudo] story publicado")
     except Exception as e:  # story é bônus: não impede o post do feed
         print(f"[aviso] story não publicado: {e}")
+    from .publishers import facebook_ativo, facebook_publicar_foto
+    if facebook_ativo():
+        try:
+            cfg = yaml.safe_load((RAIZ / "config.yaml").read_text())
+            texto = item["legenda"].replace("(link na bio)", f"({cfg['canal']['link_telegram']})")
+            print(f"[conteudo] facebook publicado → {facebook_publicar_foto(base + item['arquivo'], texto)}")
+        except Exception as e:
+            print(f"[aviso] facebook não publicado: {e}")
     estado["publicados"].append(item["id"])
     estado["ultimo_dia"] = datetime.now(BR).date().isoformat()
     estado["fila"] = None

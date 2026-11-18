@@ -174,3 +174,53 @@ def instagram_publicar_reel(caminho_video, legenda, cover_url=None) -> str:
     if not r.ok:
         raise RuntimeError(f"Instagram reel (publicar): {r.text}")
     return r.json()["id"]
+
+
+# ---------------- Página do Facebook ----------------
+_TOKEN_PAGINA = {}
+
+
+def facebook_ativo() -> bool:
+    return bool(os.environ.get("FB_PAGE_ID") and os.environ.get("FB_TOKEN"))
+
+
+def _token_pagina():
+    """Aceita o token da Página ou o de um usuário do sistema (que nunca expira): neste caso,
+    busca o token da Página a partir dele."""
+    if "t" not in _TOKEN_PAGINA:
+        pid, tok = os.environ["FB_PAGE_ID"], os.environ["FB_TOKEN"]
+        r = requests.get(f"{IG}/{pid}", params={"fields": "access_token", "access_token": tok}, timeout=30)
+        _TOKEN_PAGINA["t"] = (r.json().get("access_token") if r.ok else None) or tok
+    return _TOKEN_PAGINA["t"]
+
+
+def facebook_publicar_foto(url_imagem_publica, mensagem) -> str:
+    """Publica uma foto com legenda na Página (links na legenda ficam clicáveis)."""
+    r = requests.post(f"{IG}/{os.environ['FB_PAGE_ID']}/photos", data={
+        "url": url_imagem_publica, "message": mensagem, "published": "true",
+        "access_token": _token_pagina()}, timeout=90)
+    if not r.ok:
+        raise RuntimeError(f"Facebook: {r.text}")
+    return r.json().get("post_id") or r.json().get("id")
+
+
+def legenda_facebook(cfg, p, link) -> str:
+    ch = cfg["canal"]
+    selo = "⚡ OFERTA RELÂMPAGO" if p.desconto >= 50 else "🔥 ACHADO DO DIA"
+    prova = " • ".join(x for x in (
+        f"⭐ {p.nota:.1f}".replace(".", ",") if p.nota else "",
+        f"{mil(p.vendas)} vendidos" if p.vendas else "") if x)
+    return "\n".join(l for l in [
+        *_gancho_preco(p, html_ok=False),
+        "",
+        selo,
+        f"🛍️ {p.nome}",
+        prova or None,
+        f"🏬 {p.plataforma}",
+        "",
+        f"👉 COMPRAR AGORA: {link}",
+        "",
+        f"📲 Ofertas relâmpago o dia todo no Telegram: {ch['link_telegram']}",
+        "⏳ Preço e estoque podem mudar a qualquer momento.",
+        f"#publi {ch['aviso_afiliado']}",
+    ] if l is not None)

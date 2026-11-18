@@ -38,6 +38,18 @@ def main():
         ok = False
         print(f"⚠️ Não foi possível inscrever os comentários ({r.status_code}): {r.text}")
 
+    from .publishers import _token_pagina, facebook_ativo
+    if facebook_ativo():
+        r = requests.get(f"{IG}/{os.environ['FB_PAGE_ID']}", params={"fields": "name,fan_count",
+                         "access_token": _token_pagina()}, timeout=30)
+        if r.ok:
+            print(f"✅ Página do Facebook OK: {r.json().get('name')} | curtidas: {r.json().get('fan_count')}")
+        else:
+            ok = False
+            print(f"❌ Página do Facebook ({r.status_code}): {r.text}")
+    else:
+        print("ℹ️ Página do Facebook ainda não configurada (FB_PAGE_ID / FB_TOKEN).")
+
     sys.exit(0 if ok else 1)
 
 

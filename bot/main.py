@@ -90,6 +90,7 @@ def publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som, forcar_in
         story_arq = salvar(st, ARTS / f"{p.id}_story.jpg").name
     fila_ig.append({"story": story_arq, "video": video, "arquivo": arq.name,
                     "legenda": pub.legenda_instagram(cfg, p), "link": link_ig,
+                    "legenda_fb": pub.legenda_facebook(cfg, p, link_tg),
                     "nome": p.nome, "preco": pub.brl(p.preco)})
     state["instagram"]["qtd"] += 1
 
@@ -202,9 +203,11 @@ def ciclo(cfg, so_mercadolivre=False, links=None):
 
 
 def publicar_instagram():
-    """Roda depois do git push, quando as artes já têm link público no GitHub."""
-    if not os.environ.get("INSTAGRAM_TOKEN"):
-        print("Instagram não configurado; pulando.")
+    """Roda depois do git push, quando as artes já têm link público no GitHub.
+    Publica a fila no Instagram (imagem/Reel + Story) e na Página do Facebook (foto com link)."""
+    ig_ok, fb_ok = bool(os.environ.get("INSTAGRAM_TOKEN")), pub.facebook_ativo()
+    if not (ig_ok or fb_ok):
+        print("Instagram e Facebook não configurados; pulando.")
         return
     repo = os.environ["GITHUB_REPOSITORY"]
     branch = os.environ.get("GITHUB_REF_NAME", "main")
@@ -212,27 +215,38 @@ def publicar_instagram():
     restantes = []
     for item in fila:
         url = f"https://raw.githubusercontent.com/{repo}/{branch}/arts/{item['arquivo']}"
-        try:
-            media_id = None
-            if item.get("video") and (ARTS / item["video"]).exists():
-                try:
-                    media_id = pub.instagram_publicar_reel(ARTS / item["video"], item["legenda"], url)
-                except Exception as e:
-                    print(f"[aviso] reel falhou, publicando imagem: {e}")
-            media_id = media_id or pub.instagram_publicar(url, item["legenda"])
-            if item.get("story"):
-                try:
-                    surl = f"https://raw.githubusercontent.com/{repo}/{branch}/arts/{item['story']}"
-                    pub.instagram_publicar(surl, story=True)
-                except Exception as e:
-                    print(f"[aviso] story da oferta não publicado: {e}")
-            links[media_id] = {"link": item["link"], "nome": item["nome"],
-                               "preco": item["preco"], "ts": int(time.time())}
-            print(f"[instagram] {item['arquivo']} → {media_id}")
-        except Exception as e:
-            print(f"[erro instagram] {e}")
-            if (ARTS / item["arquivo"]).exists():
-                restantes.append(item)
+        if ig_ok and not item.get("ig_feito"):
+            try:
+                media_id = None
+                if item.get("video") and (ARTS / item["video"]).exists():
+                    try:
+                        media_id = pub.instagram_publicar_reel(ARTS / item["video"], item["legenda"], url)
+                    except Exception as e:
+                        print(f"[aviso] reel falhou, publicando imagem: {e}")
+                media_id = media_id or pub.instagram_publicar(url, item["legenda"])
+                item["ig_feito"] = True
+                if item.get("story"):
+                    try:
+                        surl = f"https://raw.githubusercontent.com/{repo}/{branch}/arts/{item['story']}"
+                        pub.instagram_publicar(surl, story=True)
+                    except Exception as e:
+                        print(f"[aviso] story da oferta não publicado: {e}")
+                links[media_id] = {"link": item["link"], "nome": item["nome"],
+                                   "preco": item["preco"], "ts": int(time.time())}
+                print(f"[instagram] {item['arquivo']} → {media_id}")
+            except Exception as e:
+                print(f"[erro instagram] {e}")
+        if fb_ok and not item.get("fb_feito") and item.get("legenda_fb"):
+            try:
+                post = pub.facebook_publicar_foto(url, item["legenda_fb"])
+                item["fb_feito"] = True
+                print(f"[facebook] {item['arquivo']} → {post}")
+            except Exception as e:
+                print(f"[erro facebook] {e}")
+        pendente = (ig_ok and not item.get("ig_feito")) or \
+                   (fb_ok and item.get("legenda_fb") and not item.get("fb_feito"))
+        if pendente and (ARTS / item["arquivo"]).exists():
+            restantes.append(item)
     corte = time.time() - 30 * 86400
     gravar(LINKS_IG, {k: v for k, v in links.items() if v["ts"] > corte})
     gravar(FILA_IG, restantes)
