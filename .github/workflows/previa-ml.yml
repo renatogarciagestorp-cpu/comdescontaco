@@ -9,6 +9,10 @@ on:
       precos:
         description: "Opcional: 'de 199,90 por 99,90'"
         required: false
+      instagram:
+        description: "Mandar também as versões do Instagram (arte + Reel)?"
+        type: boolean
+        default: false
 
 jobs:
   previa:
@@ -23,4 +27,4 @@ jobs:
       - env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
-        run: python -m bot.previa_ml "${{ github.event.inputs.url }}" "${{ github.event.inputs.precos }}"
+        run: python -m bot.previa_ml "${{ github.event.inputs.url }}" "${{ github.event.inputs.precos }}" "${{ github.event.inputs.instagram }}"
