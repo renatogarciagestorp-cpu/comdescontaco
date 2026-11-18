@@ -1,10 +1,12 @@
 {
- "produtos": {},
+ "produtos": {
+  "MLMLB115257401832": 1794962099.4219627
+ },
  "campanhas": {},
  "ultima_campanha": 0,
  "instagram": {
   "dia": "2026-11-17",
-  "qtd": 0
+  "qtd": 1
  },
  "telegram_offset": 778165336
 }
