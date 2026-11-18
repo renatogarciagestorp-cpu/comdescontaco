@@ -1,0 +1,26 @@
+name: Prévia Mercado Livre (só para você)
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Link do Mercado Livre"
+        required: true
+      precos:
+        description: "Opcional: 'de 199,90 por 99,90'"
+        required: false
+
+jobs:
+  previa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+      - env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
+        run: python -m bot.previa_ml "${{ github.event.inputs.url }}" "${{ github.event.inputs.precos }}"
