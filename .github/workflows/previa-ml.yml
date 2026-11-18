@@ -12,7 +12,7 @@ on:
       instagram:
         description: "Mandar também as versões do Instagram (arte + Reel)?"
         type: boolean
-        default: false
+        default: true
 
 jobs:
   previa:
