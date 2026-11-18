@@ -1,4 +1,5 @@
-Coloque aqui músicas .mp3 LIVRES DE DIREITOS AUTORAIS para os Reels.
+As trilhas trilha_*.mp3 são composições originais geradas pelo robô (python -m bot.musica), sem direitos de terceiros.
+Você pode adicionar outras músicas .mp3 LIVRES DE DIREITOS AUTORAIS para os Reels.
 Fontes gratuitas e seguras:
 - Biblioteca de Áudio do YouTube (studio.youtube.com → Biblioteca de áudio): filtre por "Não é necessário atribuir"
 - Pixabay Music (pixabay.com/music): licença livre para uso comercial

@@ -142,13 +142,15 @@ def instagram_publicar(url_imagem_publica, legenda="", story=False) -> str:
     return r.json()["id"]
 
 
-def instagram_publicar_reel(caminho_video, legenda) -> str:
+def instagram_publicar_reel(caminho_video, legenda, cover_url=None) -> str:
     """Publica um Reel (aparece também no feed) enviando o arquivo direto para a Meta
     (upload resumable): não precisa de link público para o vídeo."""
     uid, token = os.environ["INSTAGRAM_USER_ID"], os.environ["INSTAGRAM_TOKEN"]
-    r = requests.post(f"{IG}/{uid}/media", data={
-        "media_type": "REELS", "upload_type": "resumable", "caption": legenda,
-        "share_to_feed": "true", "access_token": token}, timeout=60)
+    dados = {"media_type": "REELS", "upload_type": "resumable", "caption": legenda,
+             "share_to_feed": "true", "access_token": token}
+    if cover_url:  # capa do Reel = arte do post (aparece no perfil e no feed)
+        dados["cover_url"] = cover_url
+    r = requests.post(f"{IG}/{uid}/media", data=dados, timeout=60)
     if not r.ok:
         raise RuntimeError(f"Instagram reel (container): {r.text}")
     criacao = r.json()["id"]

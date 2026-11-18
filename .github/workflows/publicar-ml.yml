@@ -1,0 +1,58 @@
+name: Publicar links do Mercado Livre
+
+on:
+  workflow_dispatch:
+    inputs:
+      links:
+        description: "Links do Mercado Livre (separados por espaço)"
+        required: true
+
+concurrency:
+  group: comdescontaco-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+      - name: Garantir ffmpeg (para gerar os Reels)
+        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Publicar os links informados
+        env:
+          SHOPEE_APP_ID: ${{ secrets.SHOPEE_APP_ID }}
+          SHOPEE_SECRET: ${{ secrets.SHOPEE_SECRET }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
+          LINKS: ${{ github.event.inputs.links }}
+        run: python -m bot.main --links
+
+      - name: Salvar histórico e artes no repositório
+        run: |
+          git config user.name "comdescontaco-bot"
+          git config user.email "comdescontaco-bot@users.noreply.github.com"
+          git add -A data arts
+          git diff --cached --quiet || git commit -m "bot: atualiza histórico [skip ci]"
+          git pull --rebase && git push
+
+      - name: Publicar no Instagram
+        env:
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+        run: |
+          python -m bot.main --instagram
+          git add -A data
+          git diff --cached --quiet || (git commit -m "bot: fila instagram [skip ci]" && git pull --rebase && git push)

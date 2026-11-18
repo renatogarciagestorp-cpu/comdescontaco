@@ -93,29 +93,33 @@ def publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som, forcar_in
     state["instagram"]["qtd"] += 1
 
 
-def ciclo_mercadolivre(cfg, state, fila_ig, sem_som):
-    """Publica os links do Mercado Livre que você mandou para o bot no Telegram."""
+def ciclo_mercadolivre(cfg, state, fila_ig, sem_som, links=None):
+    """Publica os links do Mercado Livre que você mandou para o bot no Telegram
+    (ou os passados direto em 'links', pelo workflow "Publicar links do Mercado Livre")."""
     from . import mercadolivre as ml
-    try:
-        pedidos = ml.novos_pedidos(state)
-    except Exception as e:
-        print(f"[erro ml] leitura do Telegram: {e}")
-        return
+    if links is not None:
+        pedidos = [(None, l.rstrip(").,"), "", None) for l in ml.RE_URL.findall(links)]
+    else:
+        try:
+            pedidos = ml.novos_pedidos(state)
+        except Exception as e:
+            print(f"[erro ml] leitura do Telegram: {e}")
+            return
     for chat_id, link, texto, foto in pedidos:
         try:
             p = ml.montar_produto(link, texto, foto)
             publicar_oferta(cfg, p, link, link, state, fila_ig, sem_som, forcar_instagram=True)
-            ml.responder(chat_id, f"✅ Publicado: {p.nome[:60]} por {pub.brl(p.preco)}"
+            chat_id and ml.responder(chat_id, f"✅ Publicado: {p.nome[:60]} por {pub.brl(p.preco)}"
                                   + (f" (-{p.desconto}%)" if p.desconto else ""))
             time.sleep(15)
         except Exception as e:
             print(f"[erro ml] {link}: {e}")
-            ml.responder(chat_id, f"❌ Não publiquei {link}\nMotivo: {e}.\n"
+            chat_id and ml.responder(chat_id, f"❌ Não publiquei {link}\nMotivo: {e}.\n"
                                   "Tente de novo com os preços (ex.: 'de 199,90 por 99,90') ou mande uma FOTO "
                                   "do produto com o link e os preços na legenda.")
 
 
-def ciclo(cfg, so_mercadolivre=False):
+def ciclo(cfg, so_mercadolivre=False, links=None):
     from .shopee import ShopeeAPI
 
     faltando = [k for k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID") if not os.environ.get(k)]
@@ -138,7 +142,7 @@ def ciclo(cfg, so_mercadolivre=False):
     fila_ig = carregar(FILA_IG, [])
 
     # 1) Mercado Livre: links enviados por você ao bot
-    ciclo_mercadolivre(cfg, state, fila_ig, sem_som)
+    ciclo_mercadolivre(cfg, state, fila_ig, sem_som, links)
 
     # 2) Shopee: automático (quando as chaves estiverem cadastradas)
     if so_mercadolivre or not (os.environ.get("SHOPEE_APP_ID") and os.environ.get("SHOPEE_SECRET")):
@@ -210,7 +214,7 @@ def publicar_instagram():
             media_id = None
             if item.get("video") and (ARTS / item["video"]).exists():
                 try:
-                    media_id = pub.instagram_publicar_reel(ARTS / item["video"], item["legenda"])
+                    media_id = pub.instagram_publicar_reel(ARTS / item["video"], item["legenda"], url)
                 except Exception as e:
                     print(f"[aviso] reel falhou, publicando imagem: {e}")
             media_id = media_id or pub.instagram_publicar(url, item["legenda"])
@@ -270,6 +274,8 @@ def main():
         publicar_instagram()
     elif "--ml" in sys.argv:
         ciclo(cfg, so_mercadolivre=True)
+    elif "--links" in sys.argv:
+        ciclo(cfg, so_mercadolivre=True, links=os.environ.get("LINKS", ""))
     else:
         ciclo(cfg)
 

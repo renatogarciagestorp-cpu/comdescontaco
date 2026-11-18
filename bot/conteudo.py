@@ -181,7 +181,7 @@ def publicar():
     media = None
     if item.get("video") and (ARTS / item["video"]).exists():
         try:
-            media = instagram_publicar_reel(ARTS / item["video"], item["legenda"])
+            media = instagram_publicar_reel(ARTS / item["video"], item["legenda"], base + item["arquivo"])
             print(f"[conteudo] reel publicado: {item['id']} → {media}")
         except Exception as e:
             print(f"[aviso] reel falhou, publicando como imagem: {e}")

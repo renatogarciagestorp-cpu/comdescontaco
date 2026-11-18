@@ -307,7 +307,7 @@ def renderizar(roteiro, saida: Path) -> Path:
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{VW}x{VH}", "-r", str(FPS), "-i", "-"]
     if musicas:
         cmd += ["-stream_loop", "-1", "-i", str(random.choice(musicas))]
-        filtro = ["-af", f"afade=t=in:d=0.5,afade=t=out:st={dur - 1:.2f}:d=1,volume=0.8"]
+        filtro = ["-af", f"afade=t=in:d=0.5,afade=t=out:st={dur - 1:.2f}:d=1,volume=0.7"]
     else:
         cmd += ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]
         filtro = []
