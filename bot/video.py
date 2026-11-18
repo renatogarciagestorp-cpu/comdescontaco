@@ -16,7 +16,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-from .art import _baixar, _font, _quebrar, brl, mil
+from .art import _baixar, _font, _quebrar, ajustar, brl, mil
 
 RAIZ = Path(__file__).resolve().parent.parent
 AUDIO = RAIZ / "assets" / "audio"
@@ -237,30 +237,30 @@ def roteiro_oferta(cfg, p):
                    c["alerta"] if relampago else None), VW / 2, 345, 0.1, "pop", 0.4)
 
     foto = _baixar(p.imagem)
-    foto.thumbnail((820, 560), Image.LANCZOS)
+    foto = ajustar(foto, 960, 700)
 
     def card(d, z):
-        d.rounded_rectangle((0, 0, z(940), z(620)), radius=z(44), fill="#FFFFFF")
-    lay_card = camada(940, 620, card)
-    lay_card.paste(foto, ((940 - foto.width) // 2, (620 - foto.height) // 2), foto.convert("RGBA"))
-    r.add(lay_card, VW / 2, 730, 0.2, "pop", 0.5)
+        d.rounded_rectangle((0, 0, z(1010), z(750)), radius=z(40), fill="#FFFFFF")
+    lay_card = camada(1010, 750, card)
+    lay_card.paste(foto, ((1010 - foto.width) // 2, (750 - foto.height) // 2), foto.convert("RGBA"))
+    r.add(lay_card, VW / 2, 735, 0.2, "pop", 0.5)
 
     def selo(d, z):
         d.ellipse((z(6), z(6), z(254), z(254)), fill=c["alerta"], outline="#FFFFFF", width=z(8))
         d.text((z(130), z(112)), f"-{p.desconto}%", font=_font(900, 76), fill="#FFFFFF", anchor="mm")
         d.text((z(130), z(178)), "OFF", font=_font(900, 36), fill=c["destaque"], anchor="mm")
     if p.desconto > 0:
-        r.add(camada(260, 260, selo).rotate(12, resample=Image.BICUBIC, expand=True), 860, 480, 0.9, "pop", 0.45)
+        r.add(camada(260, 260, selo).rotate(12, resample=Image.BICUBIC, expand=True), 900, 420, 0.9, "pop", 0.45)
 
     for i, l in enumerate(_quebrar(ImageDraw.Draw(Image.new("RGB", (1, 1))), p.nome, _font(800, 42),
                                    int((VW - 120) * S), 2)):
-        r.add(linha_texto(l, 42, c["texto"], 800), VW / 2, 1100 + i * 52, 1.3 + 0.1 * i, "sobe")
+        r.add(linha_texto(l, 42, c["texto"], 800), VW / 2, 1150 + i * 50, 1.3 + 0.1 * i, "sobe")
 
     partes = ([f"Nota {p.nota:.1f}".replace(".", ",")] if p.nota else []) + \
              ([f"{mil(p.vendas)} vendidos"] if p.vendas else []) or [p.plataforma.upper()]
-    r.add(linha_texto("  •  ".join(partes), 34, c["suave"], 800), VW / 2, 1215, 1.6, "sobe")
+    r.add(linha_texto("  •  ".join(partes), 34, c["suave"], 800), VW / 2, 1258, 1.6, "sobe")
     r.preco = p  # usado no desenho do preço animado
-    r.add(botao(cfg, 'COMENTE "QUERO" E RECEBA O LINK'), VW / 2, 1580, 4.4, "pop", 0.5, pulso=True)
+    r.add(botao(cfg, 'COMENTE "QUERO" E RECEBA O LINK'), VW / 2, 1590, 4.4, "pop", 0.5, pulso=True)
     r.add(linha_texto("o link chega no seu direct", 34, c["texto"], 800), VW / 2, 1672, 4.8, "sobe")
 
     base_quadro = r.quadro
@@ -273,25 +273,25 @@ def roteiro_oferta(cfg, p):
             fa = _font(800, 22)  # tamanho real 44 (o _font aplica 2x)
             w = d.textlength(antigo, font=fa)
             x0 = VW / 2 - w / 2
-            d.text((VW / 2, 1285), antigo, font=fa, fill=c["suave"], anchor="mm")
+            d.text((VW / 2, 1312), antigo, font=fa, fill=c["suave"], anchor="mm")
             pr = ease_out(prog(t, 2.4, 0.4))
             if pr > 0:
-                d.line((x0, 1287, x0 + w * pr, 1287), fill=c["alerta"], width=7)
+                d.line((x0, 1314, x0 + w * pr, 1314), fill=c["alerta"], width=7)
         if t >= 2.6:  # valor "caindo" do antigo até o preço final
             k = ease_out(prog(t, 2.6, 1.2))
             valor = p.preco_antigo + (p.preco - p.preco_antigo) * k if p.preco_antigo > p.preco else p.preco
             fp = _font(900, 60)  # tamanho real 120
-            d.text((VW / 2, 1375), brl(valor), font=fp, fill=c["destaque"], anchor="mm")
+            d.text((VW / 2, 1395), brl(valor), font=fp, fill=c["destaque"], anchor="mm")
         if t >= 3.9 and p.preco_antigo - p.preco >= 1:
             k = ease_back(prog(t, 3.9, 0.4))
             txt = f"VOCÊ ECONOMIZA {brl(p.preco_antigo - p.preco)}"
             fe = _font(900, 17)
             w = d.textlength(txt, font=fe) + 50
             h = 64 * max(k, 0.01)
-            d.rounded_rectangle((VW / 2 - w / 2, 1462 - h / 2, VW / 2 + w / 2, 1462 + h / 2),
+            d.rounded_rectangle((VW / 2 - w / 2, 1475 - h / 2, VW / 2 + w / 2, 1475 + h / 2),
                                 radius=int(h / 2), fill=c["ganho"])
             if k > 0.6:
-                d.text((VW / 2, 1462), txt, font=fe, fill=c["fundo"], anchor="mm")
+                d.text((VW / 2, 1475), txt, font=fe, fill=c["fundo"], anchor="mm")
         return img
 
     r.quadro = quadro

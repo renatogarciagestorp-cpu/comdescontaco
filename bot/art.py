@@ -98,12 +98,35 @@ def _sombra(img, caixa, raio, desloc=14, blur=26, alpha=110):
     img.paste(Image.new("RGB", img.size, "#000000"), (0, 0), sh)
 
 
+UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+
+
 def _baixar(url_ou_img):
     if isinstance(url_ou_img, Image.Image):
         return url_ou_img.convert("RGB")
-    r = requests.get(url_ou_img, timeout=30)
-    r.raise_for_status()
-    return Image.open(BytesIO(r.content)).convert("RGB")
+    candidatos = [url_ou_img]
+    if "mlstatic.com" in url_ou_img:  # Mercado Livre: pede a versão grande da foto (-O/-F)
+        import re
+        for tam in ("F", "O"):
+            grande = re.sub(r"-[A-Z]\.(webp|jpg|jpeg|png)$", rf"-{tam}.\1", url_ou_img)
+            if grande != url_ou_img:
+                candidatos.insert(len(candidatos) - 1, grande)
+    erro = None
+    for u in candidatos:
+        try:
+            r = requests.get(u, timeout=30, headers={"User-Agent": UA})
+            r.raise_for_status()
+            return Image.open(BytesIO(r.content)).convert("RGB")
+        except Exception as e:
+            erro = e
+    raise erro
+
+
+def ajustar(foto: Image.Image, larg: int, alt: int) -> Image.Image:
+    """Redimensiona para caber em larg x alt mantendo a proporção (aumenta ou diminui)."""
+    esc = min(larg / foto.width, alt / foto.height)
+    return foto.resize((max(1, int(foto.width * esc)), max(1, int(foto.height * esc))), Image.LANCZOS)
 
 
 def _selo_desconto(img, c, desconto, cx, cy, r=118):
@@ -149,24 +172,34 @@ def _rodape(d, c, texto, y=1302):
 
 
 def arte_produto(cfg, p, canal: str = "telegram") -> Image.Image:
-    """p: objeto com nome, imagem, preco, preco_antigo, desconto, nota, vendas."""
+    """Layout com a FOTO como protagonista: faixa fina da marca, área branca grande com o
+    produto e, embaixo, a faixa de informações (nome, preço, economia, botão)."""
     c = cfg["cores"]
     img = _fundo(c)
     d = ImageDraw.Draw(img)
 
     relampago = p.desconto >= 50
-    _cabecalho(d, c, cfg, "OFERTA RELÂMPAGO" if relampago else "ACHADO DO DIA",
-               c["alerta"] if relampago else c["destaque"], "#FFFFFF" if relampago else c["fundo"])
+    # Faixa da marca (fina)
+    _raio(d, 40, 22, 52, c["destaque"])
+    d.text((z(80), z(48)), cfg["canal"]["nome"], font=_font(900, 36), fill=c["texto"], anchor="lm")
+    etiqueta = "OFERTA RELÂMPAGO" if relampago else "ACHADO DO DIA"
+    f = _font(900, 24)
+    w = d.textlength(etiqueta, font=f) / K + 44
+    d.rounded_rectangle((z(W - 36 - w), z(24), z(W - 36), z(72)), radius=z(24),
+                        fill=c["alerta"] if relampago else c["destaque"])
+    d.text((z(W - 36 - w / 2), z(48)), etiqueta, font=f, fill="#FFFFFF" if relampago else c["fundo"], anchor="mm")
 
-    # Cartão do produto (herói)
-    card = (48, 124, W - 48, 772)
-    _sombra(img, card, 44)
-    d.rounded_rectangle([z(v) for v in card], radius=z(44), fill="#FFFFFF")
-    foto = _baixar(p.imagem)
-    foto.thumbnail((z(card[2] - card[0] - 120), z(card[3] - card[1] - 130)), Image.LANCZOS)
-    img.paste(foto, (z((card[0] + card[2]) / 2) - foto.width // 2, z(card[1] + 30)))
+    # Cartão branco grande com o produto (fundo roxo em volta)
+    area = (28, 100, W - 28, 836)
+    _sombra(img, area, 40, desloc=10, blur=20, alpha=120)
+    d.rounded_rectangle([z(v) for v in area], radius=z(40), fill="#FFFFFF")
+    foto = ajustar(_baixar(p.imagem), z(area[2] - area[0] - 50), z(area[3] - area[1] - 50))
+    img.paste(foto, (z(W / 2) - foto.width // 2, z((area[1] + area[3]) / 2) - foto.height // 2))
 
-    # Prova social dentro do cartão (só mostra o que existir de verdade)
+    if p.desconto > 0:
+        _selo_desconto(img, c, p.desconto, W - 140, 240, r=104)
+
+    # Prova social sobre a foto (só o que existir de verdade)
     partes = ([f"{p.nota:.1f}".replace(".", ",")] if p.nota else []) + \
              ([f"{mil(p.vendas)} vendidos"] if p.vendas else [])
     if partes:
@@ -174,56 +207,51 @@ def arte_produto(cfg, p, canal: str = "telegram") -> Image.Image:
         f = _font(800, 28)
         estrelas = 5 * 30 + 16 if p.nota else 0
         pw = estrelas + d.textlength(txt, font=f) / K + 48
-        py = card[3] - 82
-        d.rounded_rectangle((z(card[0] + 24), z(py), z(card[0] + 24 + pw), z(py + 58)),
-                            radius=z(29), fill="#F4F0FA")
+        py = area[3] - 76
+        d.rounded_rectangle((z(48), z(py), z(48 + pw), z(py + 56)), radius=z(28), fill="#F4F0FA")
         if p.nota:
             for i in range(5):
-                _estrela(d, card[0] + 56 + i * 30, py + 29, 13, "#FFB800")
-        d.text((z(card[0] + 48 + estrelas), z(py + 29)), txt, font=f, fill="#2B2340", anchor="lm")
+                _estrela(d, 80 + i * 30, py + 28, 13, "#FFB800")
+        d.text((z(72 + estrelas), z(py + 28)), txt, font=f, fill="#2B2340", anchor="lm")
 
-    if p.desconto > 0:
-        _selo_desconto(img, c, p.desconto, W - 168, 248)
+    # Nome (até 2 linhas)
+    y = 858
+    for linha in _quebrar(d, p.nome, _font(800, 34), z(W - 80), 2):
+        d.text((z(40), z(y)), linha, font=_font(800, 34), fill=c["texto"])
+        y += 42
 
-    # Título curto (menos carga cognitiva)
-    y = 800
-    for linha in _quebrar(d, p.nome, _font(800, 38), z(W - 96), 2):
-        d.text((z(48), z(y)), linha, font=_font(800, 38), fill=c["texto"])
-        y += 48
-
-    # Bloco de preço: âncora → preço → ganho
-    y = 912
+    # Preço: âncora → preço → ganho
     if p.preco_antigo > p.preco:
-        ft = _font(700, 34) if (FONTS / "Montserrat-700.ttf").exists() else _font(800, 34)
+        ft = _font(700, 30) if (FONTS / "Montserrat-700.ttf").exists() else _font(800, 30)
         antigo = f"De {brl(p.preco_antigo)}"
-        d.text((z(48), z(y)), antigo, font=ft, fill=c["suave"])
-        x_ini = 48 + d.textlength("De ", font=ft) / K
-        x_fim = 48 + d.textlength(antigo, font=ft) / K
-        d.line((z(x_ini), z(y + 21), z(x_fim), z(y + 21)), fill=c["alerta"], width=z(5))
+        ya = 950
+        d.text((z(40), z(ya)), antigo, font=ft, fill=c["suave"])
+        x_ini = 40 + d.textlength("De ", font=ft) / K
+        x_fim = 40 + d.textlength(antigo, font=ft) / K
+        d.line((z(x_ini), z(ya + 19), z(x_fim), z(ya + 19)), fill=c["alerta"], width=z(5))
     reais, cent = f"{p.preco:,.2f}".replace(",", ".").rsplit(".", 1)
-    x, base = 48, 1100
-    d.text((z(x), z(base - 96)), "POR", font=_font(900, 26), fill=c["destaque"], anchor="ls")
-    d.text((z(x), z(base - 58)), "R$", font=_font(900, 40), fill=c["destaque"], anchor="ls")
-    x += 72
-    fr = _font(900, 150)
+    x, base = 40, 1118
+    d.text((z(x), z(base - 84)), "POR", font=_font(900, 24), fill=c["destaque"], anchor="ls")
+    d.text((z(x), z(base - 50)), "R$", font=_font(900, 36), fill=c["destaque"], anchor="ls")
+    x += 64
+    fr = _font(900, 128)
     d.text((z(x), z(base)), reais, font=fr, fill=c["destaque"], anchor="ls")
     x += d.textlength(reais, font=fr) / K + 6
-    d.text((z(x), z(base - 66)), f",{cent}", font=_font(900, 56), fill=c["destaque"], anchor="ls")
+    d.text((z(x), z(base - 58)), f",{cent}", font=_font(900, 48), fill=c["destaque"], anchor="ls")
 
-    # Aversão à perda: quanto a pessoa economiza
     economia = p.preco_antigo - p.preco
     if economia >= 1:
-        bx0, by0, bx1, by1 = 662, 966, W - 48, 1094
-        d.rounded_rectangle((z(bx0), z(by0), z(bx1), z(by1)), radius=z(28), fill=c["ganho"])
-        d.text((z((bx0 + bx1) / 2), z(by0 + 38)), "VOCÊ ECONOMIZA", font=_font(900, 24),
+        bx0, by0, bx1, by1 = 690, 1000, W - 36, 1112
+        d.rounded_rectangle((z(bx0), z(by0), z(bx1), z(by1)), radius=z(26), fill=c["ganho"])
+        d.text((z((bx0 + bx1) / 2), z(by0 + 34)), "VOCÊ ECONOMIZA", font=_font(900, 22),
                fill=c["fundo"], anchor="mm")
-        d.text((z((bx0 + bx1) / 2), z(by0 + 88)), brl(economia), font=_font(900, 46),
+        d.text((z((bx0 + bx1) / 2), z(by0 + 78)), brl(economia), font=_font(900, 42),
                fill=c["fundo"], anchor="mm")
 
     cta = "COMPRE NO BOTÃO ABAIXO" if canal == "telegram" else 'COMENTE "QUERO" E RECEBA O LINK'
-    _botao(img, d, c, cta)
+    _botao(img, d, c, cta, y=1150, h=96)
     _rodape(d, c, "PREÇO SUJEITO A ALTERAÇÃO A QUALQUER MOMENTO"
-            if canal == "telegram" else "O LINK CHEGA NO SEU DIRECT EM SEGUNDOS")
+            if canal == "telegram" else "O LINK CHEGA NO SEU DIRECT EM SEGUNDOS", y=1290)
     return img.resize((W, H), Image.LANCZOS)
 
 

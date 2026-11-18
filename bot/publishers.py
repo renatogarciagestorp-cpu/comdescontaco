@@ -26,20 +26,29 @@ def limpar_titulo(nome: str, max_palavras: int = 9) -> str:
 
 
 # ---------------- Textos ----------------
+def _gancho_preco(p, html_ok=True):
+    """Primeira linha da legenda: a diferença de preço, que é o que faz parar e clicar."""
+    b = (lambda t: f"<b>{t}</b>") if html_ok else (lambda t: t)
+    risca = (lambda t: f"<s>{t}</s>") if html_ok else (lambda t: t)
+    economia = p.preco_antigo - p.preco
+    if p.desconto > 0 and economia >= 1:
+        return [f"💥 {b('DE')} {risca(brl(p.preco_antigo))} {b('POR ' + brl(p.preco))}",
+                f"📉 {b(str(p.desconto) + '% OFF')} • você economiza {b(brl(economia))}"]
+    return [f"💥 {b('SÓ ' + brl(p.preco))}"]
+
+
 def legenda_telegram(cfg, p, link) -> str:
     nome = html.escape(p.nome)
-    economia = p.preco_antigo - p.preco
-    topo = "⚡ <b>OFERTA RELÂMPAGO</b> ⚡" if p.desconto >= 50 else "🔥 <b>ACHADO DO DIA</b>"
+    selo = "⚡ OFERTA RELÂMPAGO" if p.desconto >= 50 else "🔥 ACHADO DO DIA"
+    prova = " • ".join(x for x in (
+        f"⭐ {p.nota:.1f}".replace(".", ",") if p.nota else "",
+        f"{mil(p.vendas)} vendidos" if p.vendas else "") if x)
     linhas = [
-        topo,
+        *_gancho_preco(p),
         "",
-        f"🛍️ <b>{nome}</b>",
-        "",
-        f"❌ De <s>{brl(p.preco_antigo)}</s>" if p.preco_antigo > p.preco else None,
-        f"✅ Por <b>{brl(p.preco)}</b>  🔻{p.desconto}% OFF" if p.desconto > 0 else f"✅ <b>{brl(p.preco)}</b>",
-        f"💰 Você economiza <b>{brl(economia)}</b>" if economia >= 1 else None,
-        (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else
-         (f"📦 {mil(p.vendas)} vendidos" if p.vendas else None)),
+        f"<b>{selo}</b>",
+        f"🛍️ {nome}",
+        prova or None,
         f"🏬 {p.plataforma}",
         "",
         f"👉 <a href=\"{html.escape(link)}\"><b>COMPRAR AGORA</b></a>",
@@ -62,18 +71,22 @@ def legenda_campanha(cfg, c, link) -> str:
 
 def legenda_instagram(cfg, p) -> str:
     ch = cfg["canal"]
-    return "\n".join([
+    prova = " • ".join(x for x in (
+        f"⭐ {p.nota:.1f}".replace(".", ",") if p.nota else "",
+        f"{mil(p.vendas)} vendidos" if p.vendas else "") if x)
+    return "\n".join(l for l in [
+        *_gancho_preco(p, html_ok=False),
         "💬 Comente QUERO que eu te mando o link no direct!",
         "",
-        f"🔥 {p.nome}",
-        (f"De {brl(p.preco_antigo)} por {brl(p.preco)} (-{p.desconto}%)" if p.desconto > 0 else f"Por {brl(p.preco)}"),
-        (f"⭐ {p.nota:.1f} • {mil(p.vendas)} vendidos".replace(".", ",", 1) if p.nota else f"🏬 {p.plataforma}"),
+        f"🛍️ {p.nome}",
+        prova or None,
+        f"🏬 {p.plataforma}",
         "",
         f"📲 Ofertas relâmpago o dia todo no nosso Telegram: {ch['arroba_telegram']} (link na bio)",
         "",
         f"#publi {ch['aviso_afiliado']}",
         "#promoção #achadinhos #" + p.plataforma.lower().replace(" ", "") + " #ofertas #desconto #cupom #comdescontaco",
-    ])
+    ] if l is not None)
 
 
 # ---------------- Telegram ----------------
