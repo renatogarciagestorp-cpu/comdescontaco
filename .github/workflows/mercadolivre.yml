@@ -15,7 +15,9 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    env:
+      PYTHONUNBUFFERED: "1"
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -25,8 +27,6 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
-      - name: Garantir ffmpeg (para gerar os Reels)
-        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
 
       - name: Publicar os links do Mercado Livre enviados ao bot
         env:

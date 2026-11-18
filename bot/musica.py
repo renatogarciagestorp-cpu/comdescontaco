@@ -3,6 +3,7 @@
 Uso: python -m bot.musica   → cria assets/audio/trilha_*.mp3
 Para usar músicas próprias, basta colocar outros .mp3 livres de direitos na mesma pasta.
 """
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -13,6 +14,14 @@ RAIZ = Path(__file__).resolve().parent.parent
 AUDIO = RAIZ / "assets" / "audio"
 
 NOTAS = {"C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11}
+
+
+def _ffmpeg():
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    import imageio_ffmpeg
+    return imageio_ffmpeg.get_ffmpeg_exe()
 
 
 def freq(nota, oitava):
@@ -106,7 +115,7 @@ def salvar_mp3(faixa, nome):
     pcm = (np.clip(faixa, -1, 1) * 32767).astype(np.int16)
     estereo = np.stack([pcm, pcm], axis=1).tobytes()
     saida = AUDIO / nome
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "s16le", "-ar", str(SR), "-ac", "2",
+    subprocess.run([_ffmpeg(), "-y", "-loglevel", "error", "-f", "s16le", "-ar", str(SR), "-ac", "2",
                     "-i", "-", "-c:a", "libmp3lame", "-b:a", "192k", str(saida)], input=estereo, check=True)
     return saida
 

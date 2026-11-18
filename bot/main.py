@@ -66,8 +66,9 @@ def publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som, forcar_in
     """Publica uma oferta (Shopee ou Mercado Livre) no Telegram e, se for das melhores, prepara o Instagram."""
     pc = cfg["publicacao"]
     p = replace(p, nome=pub.limpar_titulo(p.nome))
-    caminho = salvar(arte_produto(cfg, p, "telegram"), ARTS / f"{p.id}.jpg")
-    pub.telegram_enviar_foto(caminho, pub.legenda_telegram(cfg, p, link_tg), "🛒 COMPRAR AGORA", link_tg, sem_som)
+    if os.environ.get("SO_INSTAGRAM") != "true":
+        caminho = salvar(arte_produto(cfg, p, "telegram"), ARTS / f"{p.id}.jpg")
+        pub.telegram_enviar_foto(caminho, pub.legenda_telegram(cfg, p, link_tg), "🛒 COMPRAR AGORA", link_tg, sem_som)
     state["produtos"][p.id] = time.time()
     print(f"[postado] {p.plataforma} -{p.desconto}% {p.nome}")
     if state["instagram"]["qtd"] >= pc["instagram_posts_por_dia"] or not (forcar_instagram or p.desconto >= 40):

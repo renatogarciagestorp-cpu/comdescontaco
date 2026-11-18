@@ -6,6 +6,10 @@ on:
       links:
         description: "Links do Mercado Livre (separados por espaço)"
         required: true
+      so_instagram:
+        description: "Publicar só no Instagram (o post do Telegram já saiu)?"
+        type: boolean
+        default: false
 
 concurrency:
   group: comdescontaco-bot
@@ -17,7 +21,9 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    env:
+      PYTHONUNBUFFERED: "1"
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
 
@@ -27,8 +33,6 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
-      - name: Garantir ffmpeg (para gerar os Reels)
-        run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
 
       - name: Publicar os links informados
         env:
@@ -38,6 +42,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_ADMIN_ID: ${{ secrets.TELEGRAM_ADMIN_ID }}
           LINKS: ${{ github.event.inputs.links }}
+          SO_INSTAGRAM: ${{ github.event.inputs.so_instagram }}
         run: python -m bot.main --links
 
       - name: Salvar histórico e artes no repositório

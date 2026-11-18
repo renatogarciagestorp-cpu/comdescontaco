@@ -11,6 +11,7 @@ YouTube). Sem eles, o vídeo sai com áudio silencioso, como a API exige.
 """
 import math
 import random
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -22,6 +23,15 @@ RAIZ = Path(__file__).resolve().parent.parent
 AUDIO = RAIZ / "assets" / "audio"
 VW, VH, FPS = 1080, 1920, 30
 S = 2  # camadas desenhadas em 2x e reduzidas = bordas suaves
+
+
+def _ffmpeg():
+    """ffmpeg do sistema ou, se não houver, o do pacote imageio-ffmpeg (instala em segundos)."""
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    import imageio_ffmpeg
+    return imageio_ffmpeg.get_ffmpeg_exe()
 
 
 # ---------------- utilidades de animação ----------------
@@ -303,7 +313,7 @@ def renderizar(roteiro, saida: Path) -> Path:
     saida.parent.mkdir(parents=True, exist_ok=True)
     musicas = sorted(AUDIO.glob("*.mp3")) if AUDIO.exists() else []
     dur = roteiro.duracao
-    cmd = ["ffmpeg", "-y", "-loglevel", "error",
+    cmd = [_ffmpeg(), "-y", "-loglevel", "error",
            "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{VW}x{VH}", "-r", str(FPS), "-i", "-"]
     if musicas:
         cmd += ["-stream_loop", "-1", "-i", str(random.choice(musicas))]
