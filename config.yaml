@@ -44,9 +44,9 @@ busca:
 
 filtros:
   exigir_desconto: true      # só publica oferta com preço original (de/por) e desconto real
-  desconto_minimo: 30        # %
-  nota_minima: 4.6           # estrelas
-  vendas_minimas: 100
+  desconto_minimo: 50        # % (só os MAIORES descontos)
+  nota_minima: 4.7          # estrelas
+  vendas_minimas: 1000       # "viral": produto que já vendeu muito
   preco_maximo: 800          # R$ (nicho geral converte melhor em itens baratos)
   repetir_produto_apos_dias: 7
 

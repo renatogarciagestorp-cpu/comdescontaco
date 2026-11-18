@@ -38,8 +38,8 @@ def gravar(p, dados):
 
 
 def pontuar(p) -> float:
-    """Desconto pesa mais; vendas e nota dão confiança; comissão desempata."""
-    return p.desconto + math.log10(max(p.vendas, 1)) * 8 + (p.nota - 4) * 15 + p.comissao * 20
+    """Prioriza os MAIORES descontos e os produtos VIRAIS (muitas vendas); nota e comissão desempatam."""
+    return p.desconto * 1.2 + math.log10(max(p.vendas, 1)) * 15 + (p.nota - 4) * 10 + p.comissao * 20
 
 
 def escolher(produtos, cfg, state):
