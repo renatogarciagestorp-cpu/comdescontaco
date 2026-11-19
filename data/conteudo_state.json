@@ -1,14 +1,9 @@
 {
  "publicados": [
   "bf-sinais-desconto-falso",
-  "comente-o-que-quer"
+  "comente-o-que-quer",
+  "contagem-bf-1"
  ],
- "fila": {
-  "id": "contagem-bf-1",
-  "arquivo": "conteudo_contagem-bf-1_20261119.jpg",
-  "story": "conteudo_contagem-bf-1_20261119_story.jpg",
-  "video": "conteudo_contagem-bf-1_20261119.mp4",
-  "legenda": "⏳ A contagem regressiva começou!\n\nNa Black Friday as melhores ofertas acabam em minutos. Quem recebe primeiro, compra mais barato.\n\n📲 Entre no nosso canal do Telegram (link na bio) e ative as notificações 🔔\n\n#blackfriday #blackfriday2026 #promoção #ofertas #achadinhos #comdescontaco"
- },
- "ultimo_dia": "2026-11-18"
+ "fila": null,
+ "ultimo_dia": "2026-11-19"
 }
