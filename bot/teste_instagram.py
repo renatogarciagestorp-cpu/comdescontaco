@@ -50,6 +50,19 @@ def main():
     else:
         print("ℹ️ Página do Facebook ainda não configurada (FB_PAGE_ID / FB_TOKEN).")
 
+    # business_management: lê os dados da empresa (exigido pela análise do app da Meta)
+    empresa = os.environ.get("META_BUSINESS_ID", "1442771334068844")
+    for nome_tok in ("INSTAGRAM_TOKEN", "FB_TOKEN"):
+        tok = os.environ.get(nome_tok, "").strip()
+        if not tok:
+            continue
+        r = requests.get(f"{IG}/{empresa}", params={"fields": "id,name,verification_status",
+                         "access_token": tok}, timeout=30)
+        if r.ok:
+            print(f"✅ Empresa lida com {nome_tok}: {r.json().get('name')} ({r.json().get('verification_status')})")
+        else:
+            print(f"⚠️ Leitura da empresa com {nome_tok} ({r.status_code}): {r.text[:200]}")
+
     sys.exit(0 if ok else 1)
 
 
