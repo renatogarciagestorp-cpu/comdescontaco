@@ -4,8 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "Link meli.la de afiliado"
+        description: "Link meli.la de afiliado ou endereços da vitrine (separados por espaço)"
         required: true
+      modo:
+        description: "1 = rastreio do link; 2 = itens da vitrine"
+        required: false
+        default: "1"
 
 jobs:
   diagnostico:
@@ -19,4 +23,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests pillow pyyaml
-      - run: python -m bot.diag_vitrine "${{ github.event.inputs.url }}"
+      - run: |
+          if [ "${{ github.event.inputs.modo }}" = "2" ]; then
+            python -m bot.diag_vitrine2 ${{ github.event.inputs.url }}
+          else
+            python -m bot.diag_vitrine "${{ github.event.inputs.url }}"
+          fi
