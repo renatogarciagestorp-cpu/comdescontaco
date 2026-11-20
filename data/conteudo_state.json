@@ -4,6 +4,12 @@
   "comente-o-que-quer",
   "contagem-bf-1"
  ],
- "fila": null,
+ "fila": {
+  "id": "cupom-passo-a-passo",
+  "arquivo": "conteudo_cupom-passo-a-passo_20261120.jpg",
+  "story": "conteudo_cupom-passo-a-passo_20261120_story.jpg",
+  "video": "conteudo_cupom-passo-a-passo_20261120.mp4",
+  "legenda": "🎟️ Tem gente que perde desconto por não saber usar cupom direito.\n\nSalve este passo a passo 📌 e mande pra quem sempre paga frete 😅\n\nCupons novos todos os dias no nosso Telegram (link na bio) ⚡\n\n#cupom #cupomdedesconto #fretegratis #promoção #dicas #economia #comdescontaco"
+ },
  "ultimo_dia": "2026-11-19"
 }
