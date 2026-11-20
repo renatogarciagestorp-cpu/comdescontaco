@@ -1,8 +1,7 @@
 name: Conteúdo Instagram
 
 on:
-  schedule:
-    - cron: "7 22 * * *"   # todo dia às 19h07 (Brasília), horário de pico no Instagram
+  # Disparado pelo "relógio" do Cloudflare (instagram-robo/index.js). Também dá para rodar pelo botão.
   workflow_dispatch:        # botão "Run workflow" para publicar na hora
 
 concurrency:

@@ -1,8 +1,7 @@
 name: Mercado Livre (links do Telegram)
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"   # a cada 10 min: publica os links que você mandou ao bot
+  # Disparado pelo "relógio" do Cloudflare (instagram-robo/index.js). Também dá para rodar pelo botão.
   workflow_dispatch:          # botão "Run workflow" para rodar na hora
 
 concurrency:

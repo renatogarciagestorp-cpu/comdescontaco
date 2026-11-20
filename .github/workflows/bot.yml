@@ -1,8 +1,7 @@
 name: comdescontaco bot
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"   # a cada 30 min (o GitHub pode atrasar alguns minutos)
+  # Disparado pelo "relógio" do Cloudflare (instagram-robo/index.js). Também dá para rodar pelo botão.
   workflow_dispatch:          # botão "Run workflow" para rodar na hora
 
 concurrency:
