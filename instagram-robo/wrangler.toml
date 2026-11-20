@@ -6,7 +6,7 @@ compatibility_date = "2025-01-01"
 LINKS_URL = "https://raw.githubusercontent.com/renatogarciagestorp-cpu/comdescontaco/main/data/instagram_links.json"
 TELEGRAM_LINK = "https://t.me/comdescontaco"
 
-# Segredos (NÃO coloque aqui). Cadastre com:
+# Segredos (NÃO coloque aqui): INSTAGRAM_TOKEN, INSTAGRAM_USER_ID, APP_SECRET, VERIFY_TOKEN e GITHUB_TOKEN (dispara o robô no GitHub). Cadastre com:
 #   npx wrangler secret put INSTAGRAM_TOKEN
 #   npx wrangler secret put INSTAGRAM_USER_ID
 #   npx wrangler secret put APP_SECRET

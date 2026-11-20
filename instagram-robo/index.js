@@ -110,9 +110,37 @@ export async function varrerComentarios(env, agora = Date.now()) {
   return resultados;
 }
 
+// ---------- "Relógio" do robô no GitHub ----------
+// O agendador gratuito do GitHub atrasa ou pula horários. O Cloudflare roda certinho a cada
+// minuto, então ele dispara os workflows do GitHub na hora certa (precisa do segredo GITHUB_TOKEN).
+const REPO = "renatogarciagestorp-cpu/comdescontaco";
+
+export function agenda(d) {
+  const m = d.getUTCMinutes(), h = d.getUTCHours();
+  const lista = [];
+  if (m % 30 === 0) lista.push("bot.yml");            // ofertas da Shopee: a cada 30 min
+  if (m % 10 === 5) lista.push("mercadolivre.yml");   // links do Mercado Livre: a cada 10 min
+  if (h === 22 && m === 7) lista.push("conteudo-instagram.yml"); // dica do dia: 19h07 (Brasília)
+  return lista;
+}
+
+async function dispararRobo(env, quando) {
+  if (!env.GITHUB_TOKEN) return;
+  for (const wf of agenda(quando)) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${wf}/dispatches`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: "application/vnd.github+json",
+                 "User-Agent": "comdescontaco-robo", "Content-Type": "application/json" },
+      body: JSON.stringify({ ref: "main" }),
+    });
+    console.log(r.ok ? `robô disparado: ${wf}` : `erro ao disparar ${wf}: ${r.status} ${await r.text()}`);
+  }
+}
+
 export default {
   async scheduled(evento, env, ctx) {
     ctx.waitUntil(varrerComentarios(env));
+    ctx.waitUntil(dispararRobo(env, new Date(evento.scheduledTime || Date.now())));
   },
 
   async fetch(req, env, ctx) {

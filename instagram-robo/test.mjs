@@ -73,3 +73,12 @@ assert(!gets.some((g) => g.includes("VELHO")));            // post com mais de 7
 assert.equal(chamadas[0].body.recipient.comment_id, "N1");
 assert.match(chamadas[0].body.message.text, /t\.me\/comdescontaco/); // sem link de produto → Telegram
 console.log("VARREDURA OK");
+
+// ---- agenda do "relógio" ----
+import { agenda } from "./index.js";
+const at = (h, m) => agenda(new Date(Date.UTC(2026, 10, 20, h, m)));
+assert.deepEqual(at(10, 0), ["bot.yml"]);
+assert.deepEqual(at(10, 5), ["mercadolivre.yml"]);
+assert.deepEqual(at(22, 7), ["conteudo-instagram.yml"]);
+assert.deepEqual(at(10, 13), []);
+console.log("AGENDA OK");
