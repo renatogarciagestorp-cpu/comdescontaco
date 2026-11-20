@@ -1,0 +1,22 @@
+name: Diagnóstico vitrine Mercado Livre
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Link meli.la de afiliado"
+        required: true
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests pillow pyyaml
+      - run: python -m bot.diag_vitrine "${{ github.event.inputs.url }}"
