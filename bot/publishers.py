@@ -49,7 +49,7 @@ def legenda_telegram(cfg, p, link) -> str:
         f"<b>{selo}</b>",
         f"🛍️ {nome}",
         prova or None,
-        f"🏬 {p.plataforma}",
+        f"🏬 {p.plataforma}" + (f" • loja ⭐ {p.nota_loja:.1f}".replace(".", ",") if getattr(p, "nota_loja", 0) else ""),
         "",
         f"👉 <a href=\"{html.escape(link)}\"><b>COMPRAR AGORA</b></a>",
         f"🔗 {html.escape(link)}",

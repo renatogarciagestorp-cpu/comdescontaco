@@ -42,18 +42,69 @@ def pontuar(p) -> float:
     return p.desconto * 1.2 + math.log10(max(p.vendas, 1)) * 15 + (p.nota - 4) * 10 + p.comissao * 20
 
 
-def escolher(produtos, cfg, state):
+def validar(p, cfg, historico) -> str:
+    """Análise criteriosa antes de publicar. Devolve "" se aprovado, ou o motivo da recusa."""
     f = cfg["filtros"]
+    if not p.preco_unico:
+        return "anúncio com variações de preço diferentes (o % OFF da Shopee não vale para o preço exibido)"
+    if p.desconto < f["desconto_minimo"]:
+        return f"desconto de {p.desconto}% abaixo do mínimo"
+    if p.desconto > f.get("desconto_maximo_confiavel", 70):
+        return f"desconto de {p.desconto}% suspeito (preço 'de' provavelmente inflado pela loja)"
+    if p.nota < f["nota_minima"]:
+        return f"nota do produto {p.nota} abaixo de {f['nota_minima']}"
+    if p.vendas < f["vendas_minimas"]:
+        return f"só {p.vendas} vendidos"
+    if p.preco > f["preco_maximo"]:
+        return "preço acima do máximo"
+    # Histórico próprio: se já vimos este produto mais barato, o "desconto" de agora não é real
+    vistos = [v for t, v in historico.get(p.id, []) if t > time.time() - 30 * 86400]
+    if vistos and p.preco > min(vistos) * 1.03:
+        return f"já esteve por R$ {min(vistos):.2f} nos últimos 30 dias (desconto não é real agora)"
+    return ""
+
+
+def registrar_precos(produtos, historico):
+    agora = time.time()
+    for p in produtos:
+        hist = [(t, v) for t, v in historico.get(p.id, []) if t > agora - 60 * 86400]
+        if not hist or abs(hist[-1][1] - p.preco) > 0.01 or agora - hist[-1][0] > 86400:
+            hist.append((agora, p.preco))
+        historico[p.id] = hist[-30:]
+
+
+def escolher(produtos, cfg, state, historico=None, api=None):
+    f = cfg["filtros"]
+    historico = historico or {}
     limite = time.time() - f["repetir_produto_apos_dias"] * 86400
-    vistos, bons = set(), []
+    vistos, bons, recusas = set(), [], {}
     for p in produtos:
         if p.id in vistos or state["produtos"].get(p.id, 0) > limite:
             continue
         vistos.add(p.id)
-        if (p.desconto >= f["desconto_minimo"] and p.nota >= f["nota_minima"]
-                and p.vendas >= f["vendas_minimas"] and p.preco <= f["preco_maximo"]):
-            bons.append(p)
-    return sorted(bons, key=pontuar, reverse=True)
+        motivo = validar(p, cfg, historico)
+        if motivo:
+            recusas[motivo.split(" (")[0][:40]] = recusas.get(motivo.split(" (")[0][:40], 0) + 1
+            continue
+        bons.append(p)
+    bons.sort(key=pontuar, reverse=True)
+    # Reputação da loja: só para os melhores candidatos (economiza chamadas)
+    aprovados, notas = [], {}
+    for p in bons[:10]:
+        if api is None:
+            aprovados.append(p)
+            continue
+        if p.loja_id not in notas:
+            notas[p.loja_id] = api.nota_loja(p.loja_id)
+        p.nota_loja = notas[p.loja_id]
+        if p.nota_loja < f.get("nota_minima_loja", 4.7):
+            recusas["loja com nota baixa"] = recusas.get("loja com nota baixa", 0) + 1
+            print(f"[recusado] loja {p.loja} com nota {p.nota_loja}: {p.nome[:50]}")
+            continue
+        aprovados.append(p)
+    if recusas:
+        print("[análise] recusados: " + "; ".join(f"{k}: {v}" for k, v in recusas.items()))
+    return aprovados
 
 
 def limpar_artes(dias=3):
@@ -180,7 +231,10 @@ def ciclo(cfg, so_mercadolivre=False, links=None):
                 produtos += api.buscar_produtos(kw, cfg["busca"]["resultados_por_palavra"])
             except Exception as e:
                 print(f"[erro busca '{kw}'] {e}")
-        candidatos = escolher(produtos, cfg, state)
+        historico = carregar(RAIZ / "data" / "precos.json", {})
+        candidatos = escolher(produtos, cfg, state, historico, api)
+        registrar_precos(produtos, historico)
+        gravar(RAIZ / "data" / "precos.json", historico)
         print(f"{len(produtos)} produtos encontrados, {len(candidatos)} passaram nos filtros.")
         postados = 0
         for p in candidatos:

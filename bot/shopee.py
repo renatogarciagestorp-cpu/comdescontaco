@@ -14,7 +14,7 @@ PRODUCT_QUERY = """
 query ($keyword: String, $page: Int, $limit: Int) {
   productOfferV2(keyword: $keyword, sortType: 2, page: $page, limit: $limit) {
     nodes {
-      itemId productName imageUrl offerLink productLink
+      itemId shopId productName imageUrl offerLink productLink
       priceMin priceMax priceDiscountRate sales ratingStar
       commissionRate shopName
     }
@@ -54,6 +54,10 @@ class Produto:
     comissao: float
     loja: str
     plataforma: str = "Shopee"
+    loja_id: str = ""
+    preco_unico: bool = True      # False = anúncio com variações de preço diferentes
+    nota_loja: float = 0.0
+    motivo_recusa: str = ""
 
 
 @dataclass
@@ -90,6 +94,7 @@ class ShopeeAPI:
         produtos = []
         for n in data["productOfferV2"]["nodes"]:
             preco = float(n.get("priceMin") or 0)
+            preco_max = float(n.get("priceMax") or preco)
             desconto = int(n.get("priceDiscountRate") or 0)
             if preco <= 0:
                 continue
@@ -107,8 +112,22 @@ class ShopeeAPI:
                 nota=float(n.get("ratingStar") or 0),
                 comissao=float(n.get("commissionRate") or 0),
                 loja=n.get("shopName") or "",
+                loja_id=str(n.get("shopId") or ""),
+                preco_unico=abs(preco_max - preco) < 0.01,
             ))
         return produtos
+
+    def nota_loja(self, shop_id: str) -> float:
+        """Nota (estrelas) da loja, pela API oficial de afiliados. 0 se não conseguir ler."""
+        if not shop_id.isdigit():
+            return 0.0
+        try:
+            q = "{ shopOfferV2(shopId: %s, page: 1, limit: 1) { nodes { shopId ratingStar } } }" % shop_id
+            nodes = self._call(q, {})["shopOfferV2"]["nodes"]
+            return float(nodes[0]["ratingStar"]) if nodes else 0.0
+        except Exception as e:
+            print(f"[aviso] nota da loja {shop_id} não lida: {e}")
+            return 0.0
 
     def buscar_campanhas(self, limite: int = 20) -> list[Campanha]:
         data = self._call(CAMPAIGN_QUERY, {"page": 1, "limit": limite})
