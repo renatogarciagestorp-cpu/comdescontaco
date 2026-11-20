@@ -17,13 +17,11 @@ nodes = api._call(Q, {"keyword": kw})["productOfferV2"]["nodes"]
 for n in nodes:
     print("PRODUTO:", json.dumps(n, ensure_ascii=False))
 
-QS = """query ($shopId: Int64) {
-  shopOfferV2(shopId: $shopId, page: 1, limit: 1) {
-    nodes { shopId shopName ratingStar shopType }
-  }
-}"""
 for n in nodes[:3]:
-    try:
-        print("LOJA:", json.dumps(api._call(QS, {"shopId": int(n["shopId"])}), ensure_ascii=False))
-    except Exception as e:
-        print("LOJA erro:", str(e)[:300])
+    sid = n["shopId"]
+    for nome, q in (("literal", "{ shopOfferV2(shopId: %s, page: 1, limit: 1) { nodes { shopId shopName ratingStar shopType sellerCommCoveRatio } } }" % sid),
+                    ("keyword", '{ shopOfferV2(keyword: "%s", page: 1, limit: 3) { nodes { shopId shopName ratingStar shopType } } }' % n["shopName"].replace('"', ""))):
+        try:
+            print(f"LOJA({nome}):", json.dumps(api._call(q, {}), ensure_ascii=False)[:400])
+        except Exception as e:
+            print(f"LOJA({nome}) erro:", str(e)[:200])
