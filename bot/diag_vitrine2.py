@@ -49,6 +49,9 @@ for url in sys.argv[1:]:
     print("MLB ids:", sorted(set(re.findall(r"MLB\d{6,}", txt)))[:20])
     print("títulos:", re.findall(r'"title"\s*:\s*"([^"]{12,90})"', txt)[:15])
     print("amostra de 'items':", [t[:300] for t in re.findall(r'"items"\s*:\s*\[.{0,300}', txt)[:2]])
+    listas = pp.get("lists")
+    print("shareLink:", pp.get("shareLink"), "| profilePath:", pp.get("profilePath"), "| totalLists:", pp.get("totalLists"))
+    print("LISTS JSON:", json.dumps(listas, ensure_ascii=False)[:3500])
     comps = st.get("appProps", {}).get("pageProps", {}).get("data", {}).get("components", [])
     for c in comps:
         print("componente:", c.get("id"), "|", c.get("type"), "| chaves:", list(c.keys())[:8])
