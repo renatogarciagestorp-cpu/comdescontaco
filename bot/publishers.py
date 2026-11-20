@@ -129,17 +129,21 @@ def instagram_publicar(url_imagem_publica, legenda="", story=False) -> str:
     if not r.ok:
         raise RuntimeError(f"Instagram media: {r.text}")
     criacao = r.json()["id"]
-    for _ in range(12):  # aguarda o Instagram processar a imagem
+    for _ in range(24):  # aguarda o Instagram processar a imagem (até ~2 min)
         st = requests.get(f"{IG}/{criacao}", params={
             "fields": "status_code", "access_token": token}, timeout=30).json()
         if st.get("status_code") == "FINISHED":
             break
         time.sleep(5)
-    r = requests.post(f"{IG}/{uid}/media_publish", data={
-        "creation_id": criacao, "access_token": token}, timeout=60)
-    if not r.ok:
-        raise RuntimeError(f"Instagram publish: {r.text}")
-    return r.json()["id"]
+    for tentativa in range(4):  # "mídia não está pronta" (9007): espera e tenta de novo
+        r = requests.post(f"{IG}/{uid}/media_publish", data={
+            "creation_id": criacao, "access_token": token}, timeout=60)
+        if r.ok:
+            return r.json()["id"]
+        if "9007" not in r.text:
+            break
+        time.sleep(15)
+    raise RuntimeError(f"Instagram publish: {r.text}")
 
 
 def instagram_publicar_reel(caminho_video, legenda, cover_url=None) -> str:

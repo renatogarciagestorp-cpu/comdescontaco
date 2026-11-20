@@ -33,7 +33,7 @@ query ($page: Int, $limit: Int) {
 """
 
 SHORTLINK_MUTATION = """
-mutation ($url: String!, $subIds: [String]) {
+mutation ($url: String!, $subIds: [String!]) {
   generateShortLink(input: {originUrl: $url, subIds: $subIds}) { shortLink }
 }
 """
@@ -118,6 +118,10 @@ class ShopeeAPI:
             fim = int(n.get("periodEndTime") or 0)
             if fim and fim < agora:
                 continue
+            nome = (n.get("offerName") or "").strip(" -")
+            if sum(ch.isalpha() for ch in nome) < 8 or not n.get("imageUrl"):
+                continue  # campanha com nome vazio/estranho (ex.: "- - Health"): não publica
+            n["offerName"] = nome
             out.append(Campanha(id=n["offerLink"], nome=n["offerName"], imagem=n["imageUrl"],
                                 link=n["offerLink"], fim=fim))
         return out
