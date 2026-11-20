@@ -148,7 +148,9 @@ def ciclo(cfg, so_mercadolivre=False, links=None):
     ciclo_mercadolivre(cfg, state, fila_ig, sem_som, links)
 
     # 2) Shopee: automático (quando as chaves estiverem cadastradas)
-    if so_mercadolivre or not (os.environ.get("SHOPEE_APP_ID") and os.environ.get("SHOPEE_SECRET")):
+    if not cfg["busca"].get("shopee_ativa", True):
+        print("Shopee pausada no config.yaml (busca.shopee_ativa: false).")
+    elif so_mercadolivre or not (os.environ.get("SHOPEE_APP_ID") and os.environ.get("SHOPEE_SECRET")):
         if not so_mercadolivre:
             print("Shopee ainda não configurada (SHOPEE_APP_ID / SHOPEE_SECRET); pulando.")
     else:

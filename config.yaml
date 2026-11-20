@@ -17,6 +17,7 @@ cores:
 
 # ============ Busca de ofertas (Shopee) ============
 busca:
+  shopee_ativa: false   # PAUSADA: verificando preço original e reputação da loja antes de publicar
   # Nicho geral: a cada execução o bot sorteia algumas palavras desta lista.
   palavras_chave:
     - fone bluetooth
