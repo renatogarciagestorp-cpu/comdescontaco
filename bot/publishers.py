@@ -94,6 +94,7 @@ def legenda_instagram(cfg, p) -> str:
 def telegram_enviar_foto(caminho_img, legenda, botao_texto, botao_link, sem_som=False):
     token, chat = os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHAT_ID"]
     with open(caminho_img, "rb") as f:
+      try:
         r = requests.post(
             f"https://api.telegram.org/bot{token}/sendPhoto",
             data={
@@ -105,8 +106,13 @@ def telegram_enviar_foto(caminho_img, legenda, botao_texto, botao_link, sem_som=
                     {"inline_keyboard": [[{"text": botao_texto, "url": botao_link}]]}),
             },
             files={"photo": f},
-            timeout=60,
+            timeout=(15, 120),
         )
+      except requests.exceptions.ReadTimeout:
+        # O Telegram demorou a responder, mas costuma entregar a mensagem mesmo assim:
+        # tratamos como enviada para não repetir a oferta no canal.
+        print("[aviso] Telegram demorou a responder; considerando a oferta como enviada")
+        return
     if not r.ok:
         raise RuntimeError(f"Telegram: {r.status_code} {r.text}")
 
