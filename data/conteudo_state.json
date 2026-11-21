@@ -5,6 +5,12 @@
   "contagem-bf-1",
   "cupom-passo-a-passo"
  ],
- "fila": null,
+ "fila": {
+  "id": "marque-amigo",
+  "arquivo": "conteudo_marque-amigo_20261121.jpg",
+  "story": "conteudo_marque-amigo_20261121_story.jpg",
+  "video": "conteudo_marque-amigo_20261121.mp4",
+  "legenda": "😂 Todo mundo conhece um...\n\nMarca aqui 👇 aquele amigo que nunca espera a promoção!\n\n📲 Ofertas verificadas todos os dias no Telegram (link na bio)\n\n#humor #promoção #achadinhos #economia #blackfriday #comdescontaco"
+ },
  "ultimo_dia": "2026-11-20"
 }
