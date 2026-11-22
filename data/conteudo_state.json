@@ -6,6 +6,12 @@
   "cupom-passo-a-passo",
   "marque-amigo"
  ],
- "fila": null,
+ "fila": {
+  "id": "golpes",
+  "arquivo": "conteudo_golpes_20261122.jpg",
+  "story": "conteudo_golpes_20261122_story.jpg",
+  "video": "conteudo_golpes_20261122.mp4",
+  "legenda": "⚠️ Na Black Friday os golpes aumentam muito.\n\nCompartilhe com sua família, principalmente com quem compra pouco pela internet 🙏\n\nAqui todo link leva para a loja oficial ✅\n\n#golpe #segurançadigital #blackfriday #dicas #comprasonline #comdescontaco"
+ },
  "ultimo_dia": "2026-11-21"
 }
