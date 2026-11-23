@@ -5,14 +5,9 @@
   "contagem-bf-1",
   "cupom-passo-a-passo",
   "marque-amigo",
-  "golpes"
+  "golpes",
+  "checklist-bf"
  ],
- "fila": {
-  "id": "checklist-bf",
-  "arquivo": "conteudo_checklist-bf_20261123.jpg",
-  "story": "conteudo_checklist-bf_20261123_story.jpg",
-  "video": "conteudo_checklist-bf_20261123.mp4",
-  "legenda": "✅ Checklist pra aproveitar a Black Friday de verdade.\n\nSalve 📌 e confira um por um antes do dia 27!\n\n#blackfriday #checklist #dicasdecompras #promoção #economia #comdescontaco"
- },
- "ultimo_dia": "2026-11-22"
+ "fila": null,
+ "ultimo_dia": "2026-11-23"
 }
