@@ -6,14 +6,9 @@
   "cupom-passo-a-passo",
   "marque-amigo",
   "golpes",
-  "checklist-bf"
+  "checklist-bf",
+  "contagem-bf-2"
  ],
- "fila": {
-  "id": "contagem-bf-2",
-  "arquivo": "conteudo_contagem-bf-2_20261124.jpg",
-  "story": "conteudo_contagem-bf-2_20261124_story.jpg",
-  "video": "conteudo_contagem-bf-2_20261124.mp4",
-  "legenda": "⏳ Falta pouco!\n\nDica de ouro: faça sua lista de desejos HOJE e acompanhe os preços. Assim você percebe na hora se o desconto é de verdade.\n\n📲 Nossas ofertas verificadas saem primeiro no Telegram (link na bio)\n\n#blackfriday #blackfriday2026 #contagemregressiva #promoção #comdescontaco"
- },
- "ultimo_dia": "2026-11-23"
+ "fila": null,
+ "ultimo_dia": "2026-11-24"
 }
