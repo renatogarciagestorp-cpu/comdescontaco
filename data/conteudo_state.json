@@ -7,14 +7,9 @@
   "marque-amigo",
   "golpes",
   "checklist-bf",
-  "contagem-bf-2"
+  "contagem-bf-2",
+  "contagem-bf-3"
  ],
- "fila": {
-  "id": "contagem-bf-3",
-  "arquivo": "conteudo_contagem-bf-3_20261126.jpg",
-  "story": "conteudo_contagem-bf-3_20261126_story.jpg",
-  "video": "conteudo_contagem-bf-3_20261126.mp4",
-  "legenda": "⏳ Está chegando a hora!\n\nAs ofertas relâmpago da Black Friday acabam em minutos e muitas saem de madrugada.\n\n🔔 Entre no Telegram (link na bio) e ative as notificações.\n\n#blackfriday #blackfriday2026 #ofertasrelampago #promoção #comdescontaco"
- },
- "ultimo_dia": "2026-11-24"
+ "fila": null,
+ "ultimo_dia": "2026-11-26"
 }
