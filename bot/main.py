@@ -73,6 +73,11 @@ def registrar_precos(produtos, historico):
         historico[p.id] = hist[-30:]
 
 
+def chave_titulo(nome: str) -> str:
+    """Primeiras 3 palavras do título limpo: evita postar dois anúncios quase iguais em seguida."""
+    return " ".join(pub.limpar_titulo(nome).lower().split()[:3])
+
+
 def escolher(produtos, cfg, state, historico=None, api=None):
     f = cfg["filtros"]
     historico = historico or {}
@@ -89,7 +94,7 @@ def escolher(produtos, cfg, state, historico=None, api=None):
         bons.append(p)
     bons.sort(key=pontuar, reverse=True)
     # Reputação da loja: só para os melhores candidatos (economiza chamadas)
-    aprovados, notas = [], {}
+    aprovados, notas, chaves = [], {}, set()
     for p in bons[:10]:
         if api is None:
             aprovados.append(p)
@@ -101,6 +106,11 @@ def escolher(produtos, cfg, state, historico=None, api=None):
             recusas["loja com nota baixa"] = recusas.get("loja com nota baixa", 0) + 1
             print(f"[recusado] loja {p.loja} com nota {p.nota_loja}: {p.nome[:50]}")
             continue
+        chave = chave_titulo(p.nome)
+        if chave in chaves or state.get("titulos", {}).get(chave, 0) > time.time() - 86400:
+            recusas["produto parecido já publicado"] = recusas.get("produto parecido já publicado", 0) + 1
+            continue
+        chaves.add(chave)
         aprovados.append(p)
     if recusas:
         print("[análise] recusados: " + "; ".join(f"{k}: {v}" for k, v in recusas.items()))
@@ -121,6 +131,10 @@ def publicar_oferta(cfg, p, link_tg, link_ig, state, fila_ig, sem_som, forcar_in
         caminho = salvar(arte_produto(cfg, p, "telegram"), ARTS / f"{p.id}.jpg")
         pub.telegram_enviar_foto(caminho, pub.legenda_telegram(cfg, p, link_tg), "🛒 COMPRAR AGORA", link_tg, sem_som)
     state["produtos"][p.id] = time.time()
+    titulos = state.setdefault("titulos", {})
+    titulos[chave_titulo(p.nome)] = time.time()
+    for k in [k for k, v in titulos.items() if v < time.time() - 3 * 86400]:
+        del titulos[k]
     print(f"[postado] {p.plataforma} -{p.desconto}% {p.nome}")
     if state["instagram"]["qtd"] >= pc["instagram_posts_por_dia"] or not (forcar_instagram or p.desconto >= 40):
         return
