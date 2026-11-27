@@ -74,20 +74,33 @@ class ShopeeAPI:
         self.app_id = app_id or os.environ["SHOPEE_APP_ID"]
         self.secret = secret or os.environ["SHOPEE_SECRET"]
 
-    def _call(self, query: str, variables: dict) -> dict:
+    def _call(self, query: str, variables: dict, tentativas: int = 4) -> dict:
+        """Chama a API. O erro 10000 ("System Error") da Shopee é passageiro: tenta de novo com espera."""
         body = json.dumps({"query": query, "variables": variables}, separators=(",", ":"))
-        ts = str(int(time.time()))
-        sig = hashlib.sha256(f"{self.app_id}{ts}{body}{self.secret}".encode()).hexdigest()
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"SHA256 Credential={self.app_id}, Timestamp={ts}, Signature={sig}",
-        }
-        r = requests.post(ENDPOINT, data=body.encode(), headers=headers, timeout=30)
-        r.raise_for_status()
-        payload = r.json()
-        if payload.get("errors"):
-            raise RuntimeError(f"Shopee API: {payload['errors']}")
-        return payload["data"]
+        for n in range(1, tentativas + 1):
+            ts = str(int(time.time()))
+            sig = hashlib.sha256(f"{self.app_id}{ts}{body}{self.secret}".encode()).hexdigest()
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"SHA256 Credential={self.app_id}, Timestamp={ts}, Signature={sig}",
+            }
+            try:
+                r = requests.post(ENDPOINT, data=body.encode(), headers=headers, timeout=30)
+                r.raise_for_status()
+                payload = r.json()
+            except (requests.RequestException, ValueError) as e:
+                if n == tentativas:
+                    raise
+                print(f"[shopee] falha de conexão ({e}); tentando de novo ({n}/{tentativas})")
+                time.sleep(4 * n)
+                continue
+            erros = payload.get("errors")
+            if not erros:
+                return payload["data"]
+            passageiro = any((e.get("extensions") or {}).get("code") == 10000 for e in erros)
+            if not passageiro or n == tentativas:
+                raise RuntimeError(f"Shopee API: {erros}")
+            time.sleep(4 * n)
 
     def buscar_produtos(self, palavra: str, limite: int = 30) -> list[Produto]:
         data = self._call(PRODUCT_QUERY, {"keyword": palavra, "page": 1, "limit": limite})
