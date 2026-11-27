@@ -8,14 +8,9 @@
   "golpes",
   "checklist-bf",
   "contagem-bf-2",
-  "contagem-bf-3"
+  "contagem-bf-3",
+  "por-que-telegram"
  ],
- "fila": {
-  "id": "por-que-telegram",
-  "arquivo": "conteudo_por-que-telegram_20261127.jpg",
-  "story": "conteudo_por-que-telegram_20261127_story.jpg",
-  "video": "conteudo_por-que-telegram_20261127.mp4",
-  "legenda": "📲 O Instagram mostra só uma parte das ofertas. No Telegram sai TUDO, na hora.\n\nToque no link da bio e entre no canal @comdescontaco 🔔\n\n#telegram #ofertas #promoção #achadinhos #blackfriday #comdescontaco"
- },
- "ultimo_dia": "2026-11-26"
+ "fila": null,
+ "ultimo_dia": "2026-11-27"
 }
